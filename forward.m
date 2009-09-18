@@ -1,23 +1,33 @@
-function [u, V, P, logli] = forward(x, A, Gamma, C, Sigma, u0, V0, obs)
-%the forward message passing for LDS
-%using forward algorithm to inference x_(N+1) given X
-%x is N * M dimension
-%z_n = A z_{n-1} + w_n
-%x_n = C x_n + v_n
-%A: H * H, Gamma: H * H
-%C: M * H, Sigma: M * M
-%u0: H * 1, V0: H * H
-%u is cell N * 1
-%V is cell N * H * H
-%P is cell N * H * H
+function [u, V, P, logli] = forward(X, model)
+% The forward message passing for LDS (Kalman filtering)
+% see learn_lds.m
+%
+% Args:
+%   X is M * N, M is number of sequences, N is the time duration.
+%   model: a struct with the following attributes:
+%     A: transition matrix (also named as F in papers), H * H
+%     C: transmission  matrix(also called projection matrix, named as G
+% in papers), M * H
+%     Q: transition covariance, H * H 
+%     R: transmission covariance, M * M
+%     mu0: initial states (also named as z_0 sometimes), H * 1
+%     Q0: initial covariance, H * H
+%
+% Returns:
+%   u is cell N * 1
+%   V is cell N * 1, each with a matrix H * H
+%   P is cell N * 1, each with a matrix H * H
+%   logli: log-likelihood of the data under the current model.
+%   
 %obs is optional argument for indicating whether x(obs(i)) is observed or
 %missing (modified Sep 11)
 %version 29, by leili
 
+%A, Gamma, C, Sigma, u0, V0,  obs
 
-N = size(x, 1);
-M = size(x, 2);
-H = size(A, 1); %dimension of hidden variable
+N = size(X, 2);
+M = size(X, 1);
+H = size(model.A, 1); %dimension of hidden variable
 Ih = eye(H, H);
 
 if (nargin < 8) 

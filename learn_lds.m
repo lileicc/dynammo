@@ -1,4 +1,4 @@
-function [model, LL] = learn_lds(x, varargin)
+function [model, LL] = learn_lds(X, varargin)
 % learning model parameters for Linear Dynamical Systems (LDS), also known
 % as Kalman Filters.
 % Linear Dynamical Systems are described by the following equations:
@@ -47,8 +47,8 @@ function [model, LL] = learn_lds(x, varargin)
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman(x, H, maxIter)
 
 
-N = size(x, 2);
-M = size(x, 1);
+N = size(X, 2);
+M = size(X, 1);
 
 % get number of hidden variables
 a = find(strcmp('Hidden', varargin));
@@ -69,7 +69,6 @@ if (isempty(a))
   Q0 = Q;
 else
 end
-m = mean(x);
 
 CONV_BOUND = 1e-5;
 
