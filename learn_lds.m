@@ -43,12 +43,23 @@ function [model, LL] = learn_lds(X, varargin)
 %     mu0: initial states (also named as z_0 sometimes), H * 1
 %     Q0: initial covariance, H * H
 %
+% Example:
+% model = learn_lds
+%
 % derived from old function 
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman(x, H, maxIter)
 
 
 N = size(X, 2);
 M = size(X, 1);
+
+% get number of hidden variables
+a = find(strcmp('MaxIter', varargin));
+if (isempty(a))
+  maxIter = 10;
+else
+  maxIter = varargin{a+1};
+end
 
 % get number of hidden variables
 a = find(strcmp('Hidden', varargin));
@@ -61,13 +72,14 @@ end
 % get the initial model
 a = find(strcmp('Model', varargin));
 if (isempty(a))
-  A = eye(H, H) + randn(H, H);
-  C = eye(M, H) + randn(M, H);
-  Q = eye(H, H);
-  R = eye(M, M);
-  mu0 = randn(H, 1);
-  Q0 = Q;
+  model.A = eye(H, H) + randn(H, H);
+  model.C = eye(M, H) + randn(M, H);
+  model.Q = eye(H, H);
+  model.R = eye(M, M);
+  model.mu0 = randn(H, 1);
+  model.Q0 = model.Q;
 else
+  model = varargin{a+1};
 end
 
 CONV_BOUND = 1e-5;
@@ -75,17 +87,27 @@ CONV_BOUND = 1e-5;
 ratio = 1;
 diff = 1;
 iter = 0;
-[u, V, P, oldLogli] = forward(x, A, Gamma, C, Sigma, u0, V0);
+oldLogli = -inf;
 
-while (ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter)
-    iter = iter + 1;
-    [ucap, Vcap, J] = backward(u, V, P, A);
-    [A, Gamma, C, Sigma, u0, V0] = MLE_kalman(x, ucap, Vcap, J);
-    [u, V, P, logli] = forward(x, A, Gamma, C, Sigma, u0, V0);
-    logli = real(logli);
-    diff = (logli - oldLogli);
-    ratio = abs(diff/logli) ;
-    LL(iter) = logli;
-    oldLogli = logli;
-    fprintf('iteration = %d, logli = %d\n', iter, logli);
+while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
+  oldmodel = model;
+  iter = iter + 1;
+  [mu, V, P, logli] = forward(X, model);
+  [Ez, Ezz, Ez1z] = backward(mu, V, P, model);
+  
+  model = MLE_lds(X, Ez, Ezz, Ez1z, varargin{:});
+  logli = real(logli);
+  diff = (logli - oldLogli);
+  if (logli < oldLogli)
+    warning('Loglikelihood decreases!');
+  end
+  ratio = abs(diff/logli) ;
+  LL(iter) = logli;
+  oldLogli = logli;
+  fprintf('iteration = %d, logli = %d\n', iter, logli);
 end
+
+function [t] = isTiny(sigma)
+% test whether the matrix sigma is close to zero
+%
+t = (norm(sigma, 1) < eps) || (any(diag(sigma) < eps));
