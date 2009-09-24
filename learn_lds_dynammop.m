@@ -1,8 +1,8 @@
-function [model, Xhat, LL] = learn_lds_dynammo(X, varargin)
+function [model, Xhat, LL] = learn_lds_dynammop(X, varargin)
 % learning model parameters for Linear Dynamical Systems (LDS), also known
 % as Kalman Filters. 
-% Recover missing values using DynaMMo algorithm. 
-% see:
+% Recover missing values using DynaMMo+ algorithm. 
+% an improved version of the algorithm in 
 % Lei Li, Jim McCann, Nancy Pollard, Christos Faloutsos. DynaMMo: Mining 
 % and Summarization of Coevolving Sequences with Missing Values. 
 % KDD '09, Paris, France.
@@ -102,10 +102,6 @@ if (isempty(a))
 else
   observed = varargin{a+1};
 end
-
-% use linear interpolation as an initialization
-Y = linear_interp(X, observed);
-X(~observed) = Y(~observed);
 
 CONV_BOUND = 1e-5;
 
