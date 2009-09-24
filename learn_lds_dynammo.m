@@ -1,6 +1,12 @@
-function [model, LL] = learn_lds(X, varargin)
+function [model, Xhat, LL] = learn_lds_dynammo(X, varargin)
 % learning model parameters for Linear Dynamical Systems (LDS), also known
-% as Kalman Filters.
+% as Kalman Filters. 
+% Recover missing values using DynaMMo algorithm. 
+% see:
+% Lei Li, Jim McCann, Nancy Pollard, Christos Faloutsos. DynaMMo: Mining 
+% and Summarization of Coevolving Sequences with Missing Values. 
+% KDD '09, Paris, France.
+%
 % Linear Dynamical Systems are described by the following equations:
 % z_1 = mu0 + w_1
 % z_n = A z_{n-1} + w_n
@@ -19,6 +25,9 @@ function [model, LL] = learn_lds(X, varargin)
 %   iterations.
 %   'Model', followed by a struct denoting a model to start with (see
 %   below).
+%   'Observed', followed by a matrix with the same size as X, with binary
+%   values denoting whether X(i,j) is observed(1) or missing (0). If not
+%   provided, will automatically treat 0's in X as missing values.
 %  covariance options:
 %   'DiagQ0', if presented, will learn a diagonal covariance Q0
 %   'DiagQ', if presented, will learn a diagonal covariance Q
@@ -53,6 +62,7 @@ function [model, LL] = learn_lds(X, varargin)
 % derived from old function 
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman(x, H, maxIter)
 
+X_original = X;
 N = size(X, 2);
 M = size(X, 1);
 
@@ -85,6 +95,14 @@ else
   model = varargin{a+1};
 end
 
+% get the observed
+a = find(strcmp('Observed', varargin));
+if (isempty(a))
+  observed = (abs(X) > eps);
+else
+  observed = varargin{a+1};
+end
+
 CONV_BOUND = 1e-5;
 
 ratio = 1;
@@ -96,8 +114,10 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   oldmodel = model;
   iter = iter + 1;
   [mu, V, P, logli] = forward(X, model);
-  [Ez, Ezz, Ez1z] = backward(mu, V, P, model);
+  [Ez, Ezz, Ez1z] = backward(mu, V, P, model);  
   model = MLE_lds(X, Ez, Ezz, Ez1z, varargin{:});
+  Y = estimate_missing(X, Ez, model, observed);
+  X(~observed) = Y(~observed);
   logli = real(logli);
   diff = (logli - oldLogli);
   if (logli < oldLogli)
@@ -109,6 +129,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   fprintf('iteration = %d, logli = %d\n', iter, logli);
 end
 model = oldmodel;
+Xhat = X;
 
 function [t] = isTiny(sigma)
 % test whether the matrix sigma is close to zero
