@@ -22,7 +22,6 @@ function [mu, V, P, logli] = forward(X, model)
 %   logli: log-likelihood of the data under the current model.
 %
 
-
 N = size(X, 2);
 M = size(X, 1);
 H = size(model.A, 1); %dimension of hidden variable

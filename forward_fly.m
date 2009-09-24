@@ -39,29 +39,26 @@ mu{1} = model.mu0;
 V{1} = model.Q0;
 logli = 0;
 
-for i = 2:N
+for i = 1:N
+  if (i == 1)
+    KP = model.Q0;    
+    mu{i} =  model.mu0;
+  else 
     P{i-1} = model.A * V{i-1} * model.A' + model.Q;
-    
-%     if (obs(i) == 1)
-        %if x_i is observed, this is normal forward in LDS    
-        sigma_c = model.C * P{i-1} * model.C' + model.R;  
-        invSig = pinv(sigma_c);
-        %use /
-        %K = P{i-1} * C' * invSig;        
-        K = P{i-1} * model.C' * invSig;
-        mu{i} =  model.A * mu{i-1};
-        u_c = model.C * mu{i};
-        delta = X(:, i) - u_c;
-        mu{i} = mu{i} + K * delta;
-        V{i} = (Ih - K * model.C) * P{i-1};
-        posDef = delta' * invSig * delta / 2;
-        if (posDef < 0)
-            warning('det of not positive definite < 0');
-        end 
-        logli = logli - M/2 * log(2 * pi) - logdet(sigma_c, 'chol') / 2 - posDef;
-%     else
-%         %if x_i is missing, this is just initial value
-%         u{i} = A * u{i-1};
-%         V{i} = P{i-1};
-%     end
+    KP = P{i-1};
+    mu{i} =  model.A * mu{i-1};
+  end
+  sigma_c = model.C * KP * model.C' + model.R;
+  invSig = pinv(sigma_c);
+  K = KP * model.C' * invSig;
+  u_c = model.C * mu{i};
+  X(observed(:, i), i) = u_c(observed(:, i));
+  delta = X(:, i) - u_c;
+  mu{i} = mu{i} + K * delta;
+  V{i} = (Ih - K * model.C) * KP;
+  posDef = delta' * invSig * delta / 2;
+  if (posDef < 0)
+    warning('det of not positive definite < 0');
+  end
+  logli = logli - M/2 * log(2 * pi) - logdet(sigma_c, 'chol') / 2 - posDef;
 end
