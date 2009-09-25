@@ -103,6 +103,12 @@ else
   observed = varargin{a+1};
 end
 
+% get plot function 
+a = find(strcmp('Plotfun', varargin));
+if (~isempty(a))
+  plotFun = varargin{a+1};
+end
+
 CONV_BOUND = 1e-5;
 
 ratio = 1;
@@ -131,6 +137,9 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   LL(iter) = logli;
   oldLogli = logli;
   fprintf('iteration = %d, logli = %d\n', iter, logli);
+  if (exist(plotFun))
+    plotFun(X);
+  end
 end
 model = oldmodel;
 Xhat = X;
