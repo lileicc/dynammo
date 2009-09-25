@@ -41,6 +41,7 @@ function [model, Xhat, LL] = learn_lds_dynammop(X, varargin)
 %  Note these options could not coexist for the same covariance matrix.
 %  Default (no args given) the algorithm will learn with H=M, MaxIter=10,
 %  diagonal Q0, Q, R.
+%   'Plotfun', followed by a function handle (should take in X), for plotting purpose.
 %
 % Returns:
 %   model: a struct with the following attributes:
