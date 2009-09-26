@@ -17,86 +17,53 @@ function [X] = decompress_dynammo(data)
 %     hidden variables for the time tick.
 %
 % Returns:
-%   X: decompressed data
+%   X: decompressed data, M * N matrix
 %
-% $Author$
+% $Author$@cs.cmu.edu
 % $Date$
-% $Revision$ 
+% $Rev$
+%
 
 tp = data(1);
 N = data(2);
 M = data(3);
 H = data(4);
 Ih = eye(H, H);
-
-%predicted mean for hidden variable z
-%u = zeros(N, H);
-%V = zeros(N, H, H);
-u = cell(N, 1);
-V = cell(N, 1);
-ucap = cell(N, 1);
-
-%P = zeros(N, H, H);
-P = cell(N, 1);
-J = cell(N, 1);
-
-last = 0;
-head = 0;
-%initialize
-if (obs(1) == 1)
-    %if x_1 is observed, this is normal forward in LDS   
-    
-    %option 1: use 0
-    u{1} = z{1};
-    V{1} = zeros(H, H);
-    %option 2: use 
-    %sigma_c = C * V0 * C' + Sigma;
-    %K = V0 * C' / sigma_c;
-    %u{1} = u0;
-    %V{1} = (Ih - K * C) * V0;
-    
-    ucap{1} = z{1};
-    last = 1;
-    head = 1;
-else 
-    %if x_1 is missing, this is just initial value
-    u{1} = u0;
-    V{1} = V0;
+tt = 5;
+model = struct;
+model.mu0 = reshape(data(tt : (tt + H - 1)), [], 1);
+tt = tt + H;
+model.A = reshape(data(tt : (tt + H * H -1)), [], H);
+tt = tt + H * H;
+model.C = reshape(data(tt : (tt + M * H - 1)), [], H);
+tt = tt + M * H;
+X = zeros(M, N);
+z = model.mu0;
+X(:, 1) = model.C * z;
+if (tp == 1)
+  if (tt <= length(data))
+    hop = data(tt);
+    tt = tt + 1;
+  end
 end
+currentTick = 1;
 
 for i = 2:N
-    P{i-1} = A * V{i-1} * A' + Gamma;
-    
-    %option 1: use P
-    %V{i} = P{i-1}; 
-    %option 2: use other
-    sigma_c = C * P{i-1} * C' + Sigma;  
-    K = P{i-1} * C' / sigma_c;
-    V{i} = (Ih - K * C) * P{i-1}; 
-    
-    if (obs(i) == 0)    
-        u{i} =  A * u{i-1};
+  if (i > currentTick)
+    if (tp == 1)      
+        currentTick = currentTick + hop;
     else
-        head = head + 1;
-        ucap{i} = z{head};
-        u{i} = z{head};
-        V{i} = zeros(H, H);
-        
-        for k = (i-1): (-1) : (last+1)
-            J{k} = V{k} * A' / P{k};
-            ucap{k} = u{k} + J{k} * (ucap{k+1} - A * u{k});
-        end
-        last = i;
+      if (tt <= length(data))
+        currentTick = data(tt);
+        tt = tt + 1;
+      end
     end
-end
-
-if (obs(N) == 0)
-    for k =(last+1):1:N
-        ucap{k} = u{k};
+    if (tt <= length(data))
+      z = data(tt : (tt + H - 1));
+      tt = tt + H;
     end
-end
-
-x = zeros(N, M);
-for i = 1:N
-    x(i, :) = C * ucap{i};
+  else
+    z = model.A * z;
+  end
+  X(:, i) = model.C * z;
 end

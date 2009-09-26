@@ -62,6 +62,11 @@ function [model, Xhat, LL] = learn_lds_dynammop(X, varargin)
 %
 % derived from old function 
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman(x, H, maxIter)
+%
+% $Author$@cs.cmu.edu
+% $Date$
+% $Rev$
+%
 
 X_original = X;
 N = size(X, 2);
@@ -99,7 +104,12 @@ end
 % get the observed
 a = find(strcmp('Observed', varargin));
 if (isempty(a))
-  observed = (abs(X) > eps);
+  observed = ~isnan(X);
+  if (~any(~observed))
+    % if there is no NAN in the matrix,
+    % try to regard the 0 as missing
+    observed = (abs(X) > eps);
+  end
 else
   observed = varargin{a+1};
 end

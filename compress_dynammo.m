@@ -34,7 +34,10 @@ function [errors, ratios, comp_data] = compress_dynammo(X, varargin)
 %     for adaptive and optimal, each H+1 numbers will be time tick, and H
 %     hidden variables for the time tick.
 %
-%   
+% $Author$@cs.cmu.edu
+% $Date$
+% $Rev$
+%
 
 N = size(X, 2);
 M = size(X, 1);
