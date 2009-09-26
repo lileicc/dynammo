@@ -21,17 +21,13 @@ function [X] = decompress_dynammo(data)
 %
 % $Author$
 % $Date$
-% $Revision$
+% $Revision$ 
 
-N = size(obs, 1);
-M = size(C, 1);
-H = size(A, 1); %dimension of hidden variable
+tp = data(1);
+N = data(2);
+M = data(3);
+H = data(4);
 Ih = eye(H, H);
-
-if (nargin < 8) 
-    obs = ones(N,1);
-end
-
 
 %predicted mean for hidden variable z
 %u = zeros(N, H);
@@ -39,7 +35,6 @@ end
 u = cell(N, 1);
 V = cell(N, 1);
 ucap = cell(N, 1);
-
 
 %P = zeros(N, H, H);
 P = cell(N, 1);
