@@ -21,7 +21,20 @@ function [errors, ratios, comp_data] = compress_dynammo(X, varargin)
 % Returns:
 %   errors: squared error
 %   ratios: compression ratio
-%   comp_data: compressed data
+%   comp_data: compressed data, a cell array, each with a vector of numbers
+%     the first number identifies the compression type: 
+%     1 --> fixed
+%     2 --> adaptive
+%     3 --> optimal
+%     the second, third, firth numbers are N, M, H
+%     followed by mu0, A, C
+%     the remaining will be 
+%     for fixed, a number for hop, else, each H numbers for H
+%     hidden variables for the time tick.
+%     for adaptive and optimal, each H+1 numbers will be time tick, and H
+%     hidden variables for the time tick.
+%
+%   
 
 N = size(X, 2);
 M = size(X, 1);
