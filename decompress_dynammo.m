@@ -28,7 +28,6 @@ tp = data(1);
 N = data(2);
 M = data(3);
 H = data(4);
-Ih = eye(H, H);
 tt = 5;
 model = struct;
 model.mu0 = reshape(data(tt : (tt + H - 1)), [], 1);
