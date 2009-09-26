@@ -21,7 +21,7 @@ function [X] = decompress_dynammo(data)
 %
 % $Author$
 % $Date$
-% $Rev$ 
+% $Revision$ 
 
 tp = data(1);
 N = data(2);
