@@ -13,7 +13,6 @@ function [P, D, mu0, zhat] = fingerprint(X, varargin)
 % $Date$
 % $Rev$
 
-
 model = learn_lds(X, varargin{:});
 
 %
