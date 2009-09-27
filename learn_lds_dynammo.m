@@ -64,6 +64,10 @@ function [model, Xhat, LL] = learn_lds_dynammo(X, varargin)
 %
 % derived from old function 
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman_partial(x, H, maxIter)
+%
+% $Author$@cs.cmu.edu
+% $Date$
+% $Rev$
 
 X_original = X;
 N = size(X, 2);
