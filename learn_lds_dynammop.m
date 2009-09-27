@@ -163,4 +163,4 @@ Xhat = X;
 function [t] = isTiny(sigma)
 % test whether the matrix sigma is close to zero
 %
-t = (norm(sigma, 1) < eps) || (any(diag(sigma) < eps));
+t = (norm(sigma, 1) < 1e-10) || (any(diag(sigma) < 1e-10));
