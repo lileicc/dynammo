@@ -58,7 +58,7 @@ function [model, Xhat, LL] = learn_lds_dynammop(X, varargin)
 % x1 = sin(2 * pi * t / 50);
 % x2 = sin(2 * pi * t / 50 + pi / 4);
 % X = [x1; x2];
-% model = learn_lds(X, 'Hidden', 2, 'MaxIter', 100);
+% [model, Xhat, LL] = learn_lds_dynammop(X, 'Hidden', 2, 'MaxIter', 100, 'PlotFun', @(X)plot(X'));
 %
 % derived from old function 
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman(x, H, maxIter)
@@ -115,10 +115,14 @@ else
 end
 
 % get plot function 
-a = find(strcmp('Plotfun', varargin));
+a = find(strcmp('PlotFun', varargin));
 if (~isempty(a))
   plotFun = varargin{a+1};
 end
+
+% use linear interpolation as an initialization
+Y = linear_interp(X, observed);
+X(~observed) = Y(~observed);
 
 CONV_BOUND = 1e-5;
 
@@ -148,8 +152,9 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   LL(iter) = logli;
   oldLogli = logli;
   fprintf('iteration = %d, logli = %d\n', iter, logli);
-  if (exist(plotFun))
+  if (exist('plotFun'))
     plotFun(X);
+    drawnow;
   end
 end
 model = oldmodel;

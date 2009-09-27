@@ -59,7 +59,8 @@ function [model, Xhat, LL] = learn_lds_dynammo(X, varargin)
 % x1 = sin(2 * pi * t / 50);
 % x2 = sin(2 * pi * t / 50 + pi / 4);
 % X = [x1; x2];
-% model = learn_lds_dynammo(X, 'Hidden', 2, 'MaxIter', 100);
+% X(:, 50:end) = NaN;
+% [model, Xhat, LL] = learn_lds_dynammo(X, 'Hidden', 2, 'MaxIter', 100, 'PlotFun', @(X)plot(X'));
 %
 % derived from old function 
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman_partial(x, H, maxIter)
@@ -111,7 +112,7 @@ else
 end
 
 % get plot function 
-a = find(strcmp('Plotfun', varargin));
+a = find(strcmp('PlotFun', varargin));
 if (~isempty(a))
   plotFun = varargin{a+1};
 end
@@ -144,8 +145,9 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   LL(iter) = logli;
   oldLogli = logli;
   fprintf('iteration = %d, logli = %d\n', iter, logli);
-  if (exist(plotFun))
+  if (exist('plotFun'))
     plotFun(X);
+    drawnow;
   end
 end
 model = oldmodel;
