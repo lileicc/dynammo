@@ -1,2 +1,2 @@
 demo:
-	matlab demo_dynammo.m
+	matlab -r demo_dynammo.m
