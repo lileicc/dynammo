@@ -1,0 +1,11 @@
+t = 1:100;
+x1 = sin(2 * pi * t / 50);
+x2 = sin(2 * pi * t / 50 + pi / 4);
+X = [x1; x2];
+X(:, 50:end) = NaN;
+figure;
+plot(X');
+title('original signal');
+figure;
+[model, Xhat, LL] = learn_lds_dynammo(X, 'Hidden', 2, 'MaxIter', 100, 'PlotFun', @(X)plot(X'));
+title('recovered');
