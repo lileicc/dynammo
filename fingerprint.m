@@ -21,7 +21,7 @@ model = learn_lds(X, varargin{:});
 D = diag(DD(ind, ind)); % rearrange
 V = VV(:, ind); % rearrange
 P = model.C * V;
-mu0 = V \ u0; % mapped initial
+mu0 = V \ model.mu0; % mapped initial
 
 % get the hidden states
 [u_k, V_k, P_k] = forward(X, model);

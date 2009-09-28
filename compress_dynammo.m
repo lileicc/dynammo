@@ -5,7 +5,7 @@ function [errors, ratios, comp_data] = compress_dynammo(X, varargin)
 % Args:
 %   X: M * N matrix, M is number of sequences, N is the time duration.
 % Optional Args:
-%   'method': followed by a string in {'optimal', 'fixed', 'adaptive'}
+%   'method': followed by a string in {'optimal' (default), 'fixed', 'adaptive'}
 %   'MaxSpaceRatio': followed by a number in [0, 1] denoting the
 %   maximum space preserved. (only used in 'optimal', and 'adaptive')
 %   'Hop': followed  by a number used in 'fixed'.
@@ -17,6 +17,8 @@ function [errors, ratios, comp_data] = compress_dynammo(X, varargin)
 %     R: transmission covariance, M * M
 %     mu0: initial states (also named as z_0 sometimes), H * 1
 %     Q0: initial covariance, H * H
+%     optionally, can be followed by an additional cell array to denote the
+%     Expection of hidden variables.
 %
 % Returns:
 %   errors: squared error
@@ -57,7 +59,7 @@ end
 
 baseerr = zeros(N + 1, 1);
 for i = 1 : N
-  baseerr(i) = norm(X(:, i) - real(C * Ex{i}), 'fro') ^ 2;
+  baseerr(i) = norm(X(:, i) - real(model.C * Ex{i}), 'fro') ^ 2;
 end
 
 H = length(model.mu0);
@@ -87,8 +89,8 @@ if (isempty(a) || strcmp('optimal', varargin{a+1}))
         i = 2;
       else
         i = 1;
-      end      
-      while ((i <= ss) && (i <= thresh))
+      end
+      while ((i <= ss) && (i < thresh))
         tmperr = curerr + baseerr(tt) + errs(ss, i);
         if ((last(tt, i+1) == 0) || (tmperr < errs(tt, i + 1)))
           errs(tt, i+1) = tmperr;
@@ -101,9 +103,13 @@ if (isempty(a) || strcmp('optimal', varargin{a+1}))
       end
       tt = tt+1;
     end
+    if (ss <= 1)
+      errs(N+1, 1) = curerr;
+    end
+      
   end
   
-  errors = errs(N+1, :);
+  errors = sqrt(errs(N+1, :));
   OVERHEAD = numel(model.mu0) + numel(model.A) + numel(model.C) + 4;
   K = length(errors);
   store_space = ((1:K) - 1) .* (H + 1) + OVERHEAD;
@@ -118,7 +124,7 @@ if (isempty(a) || strcmp('optimal', varargin{a+1}))
       tt = last(tt, j);
       temp = [temp, tt];
     end
-    comp_data{i} = zeros(store_space, 1);
+    comp_data{i} = zeros(store_space(i), 1);
     comp_data{1}(1:OVERHEAD) = [TAG; N; M; H; model.mu0; reshape(model.A, [], 1); reshape(model.C, [], 1)];
     ss = OVERHEAD + 1;
     for tt = temp(end:(-1):1)
@@ -162,7 +168,7 @@ elseif (strcmp('adaptive', varargin{a+1}))
   end
     
   OVERHEAD = numel(model.mu0) + numel(model.A) + numel(model.C) + 4;
-  errors = totalerr;
+  errors = sqrt(totalerr);
   store_space = (ss - 1) .* (H + 1) + OVERHEAD;
   ratios = ORIGINAL / store_space;
   comp_data{1} = zeros(store_space, 1);
@@ -192,6 +198,11 @@ elseif (strcmp('fixed', varargin{a+1}))
     comp_data{1}(tt : (tt + H - 1)) = Ex{(i-1)*hop + 1};
     tt = tt + H;
   end
+  % error not yet computed!!!!!!
 end
   
-
+if (any(strcmp('RelativeError', varargin))) 
+  X_m = mean(X, 2);
+  TOTALVAR = norm(X - repmat(X_m, 1, size(X, 2)), 'fro'); 
+  errors = errors ./ TOTALVAR;
+end
