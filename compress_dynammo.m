@@ -44,7 +44,7 @@ function [errors, ratios, comp_data] = compress_dynammo(X, varargin)
 N = size(X, 2);
 M = size(X, 1);
 
-a = find(strcmp('model', varargin));
+a = find(strcmp('Model', varargin), 1);
 if (isempty(a))
   [model, X] = learn_lds_dynammo(X, varargin{:});
   [Ex] = backward(forward(X, model), model);
@@ -65,10 +65,10 @@ end
 H = length(model.mu0);
 ORIGINAL = numel(X) + 2;
 
-a = find(strcmp('method', varargin));
+a = find(strcmp('Method', varargin), 1);
 if (isempty(a) || strcmp('optimal', varargin{a+1}))
   % dynammo_optimal compression using dynamic programming
-  a = find(strcmp('MaxSpaceRatio', varargin));
+  a = find(strcmp('MaxSpaceRatio', varargin), 1);
   if (isempty(a))
     maxRatio = 1;
   else
@@ -135,7 +135,7 @@ if (isempty(a) || strcmp('optimal', varargin{a+1}))
   end
 elseif (strcmp('adaptive', varargin{a+1}))
   % dynammo_adaptive compression
-  a = find(strcmp('MaxSpaceRatio', varargin));
+  a = find(strcmp('MaxSpaceRatio', varargin), 1);
   if (isempty(a))
     maxRatio = 1;
   else
@@ -180,7 +180,7 @@ elseif (strcmp('adaptive', varargin{a+1}))
   end
 elseif (strcmp('fixed', varargin{a+1}))
   % dynammo_fixed compression using fixed hop
-  a = find(strcmp('Hop', varargin));
+  a = find(strcmp('Hop', varargin), 1);
   if (isempty(a))
     hop = 4;
   else

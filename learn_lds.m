@@ -57,7 +57,7 @@ N = size(X, 2);
 M = size(X, 1);
 
 % get number of hidden variables
-a = find(strcmp('MaxIter', varargin));
+a = find(strcmp('MaxIter', varargin), 1);
 if (isempty(a))
   maxIter = 10;
 else
@@ -65,7 +65,7 @@ else
 end
 
 % get number of hidden variables
-a = find(strcmp('Hidden', varargin));
+a = find(strcmp('Hidden', varargin), 1);
 if (isempty(a))
   H = M;
 else
@@ -73,7 +73,7 @@ else
 end
 
 % get the initial model
-a = find(strcmp('Model', varargin));
+a = find(strcmp('Model', varargin), 1);
 if (isempty(a))
   model.A = eye(H, H) + randn(H, H);
   model.C = eye(M, H) + randn(M, H);

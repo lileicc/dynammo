@@ -67,7 +67,7 @@ for i = 1 : N
 end
 
 
-a = find(strcmp('MaxSpaceRatio', varargin));
+a = find(strcmp('MaxSpaceRatio', varargin), 1);
 if (isempty(a))
   maxRatio = 1;
 else

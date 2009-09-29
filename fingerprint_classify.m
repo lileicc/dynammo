@@ -29,7 +29,7 @@ end
 group = sign(coordinate(:,1));
 
 %class = int32([1 1 1 2 2]);
-class = varargin{find(strcmp('Class', varargin)) + 1};
+class = varargin{find(strcmp('Class', varargin), 1) + 1};
 cmpca = confusionmat(class, group);
 cmpcah = condentropy(cmpca);
 entrop = cmpcah;
