@@ -21,6 +21,8 @@ else
   cands = [varargin{a+1}];
 end
 h_pca_all = [];
+error_pca_all = [];
+ratio_pca_all = [];
 for HIDDEN = cands
     error_pca = norm(Coeff(:, 1:HIDDEN) * Score(:, 1:HIDDEN)' + repmat(X_m, 1, size(X, 2)) - X, 'fro') / TOTALVAR;
     ratio_pca = (numel(X) + 2) / (size(X, 2) * (HIDDEN) + size(X, 1) * (HIDDEN + 1) + 3);
