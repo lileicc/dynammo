@@ -39,6 +39,8 @@ if (~ isempty(ind))
     Rnum = size(R, 2);
     Rc = Rcoeff(:, 1:Rnum);
     Rs = Rscore(:, 1:Rnum);
+else
+    PP = P;
 end
 
 Pr = PP(:, 1:num_real);

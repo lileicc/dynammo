@@ -17,5 +17,5 @@ for HIDDEN = cands
   h_finger_all = [h_finger_all, repmat(HIDDEN, 1, apsize)];
   fprintf('Hidden = %d, error = %d, ratio = %d\n', HIDDEN, error_f(1), ratio_f(1));
 end
-[ratio_finger_all, tmpIdx] = sort(ratio_finger_all, 'descent');
+[ratio_finger_all, tmpIdx] = sort(ratio_finger_all, 'descend');
 error_finger_all = cummin(error_finger_all(tmpIdx)); % get the skyline plot
