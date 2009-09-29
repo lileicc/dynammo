@@ -78,7 +78,7 @@ N = size(X, 2);
 M = size(X, 1);
 
 % get number of hidden variables
-a = find(strcmp('MaxIter', varargin));
+a = find(strcmp('MaxIter', varargin), 1);
 if (isempty(a))
   maxIter = 10;
 else
@@ -86,7 +86,7 @@ else
 end
 
 % get number of hidden variables
-a = find(strcmp('Hidden', varargin));
+a = find(strcmp('Hidden', varargin), 1);
 if (isempty(a))
   H = M;
 else
@@ -94,7 +94,7 @@ else
 end
 
 % get the bone
-a = find(strcmp('Bone', varargin));
+a = find(strcmp('Bone', varargin), 1);
 if (isempty(a))
   % no bone contraints
   bone = [];
@@ -103,7 +103,7 @@ else
 end
 
 % get the initial model
-a = find(strcmp('Model', varargin));
+a = find(strcmp('Model', varargin), 1);
 if (isempty(a))
   model.A = eye(H, H) + randn(H, H);
   model.C = eye(M, H) + randn(M, H);
@@ -116,7 +116,7 @@ else
 end
 
 % get the observed
-a = find(strcmp('Observed', varargin));
+a = find(strcmp('Observed', varargin), 1);
 if (isempty(a))
   observed = ~isnan(X);
   if (~any(~observed))
@@ -126,10 +126,16 @@ if (isempty(a))
   end
 else
   observed = varargin{a+1};
+  Dim = 3; % default
+  % observed can be on bone joints or on marker coordinates
+  if (size(observed, 1) < M)
+    Dim = int32(M / size(observed, 1));
+    observed = (reshape(repmat(observed', 3, 1), N, M))';
+  end
 end
 
 % get plot function 
-a = find(strcmp('PlotFun', varargin));
+a = find(strcmp('PlotFun', varargin), 1);
 if (~isempty(a))
   plotFun = varargin{a+1};
 end
@@ -139,7 +145,6 @@ Y = linear_interp(X, observed);
 X(~observed) = Y(~observed);
 
 CONV_BOUND = 1e-5;
-Dim = int32(M / size(W,2));
 ratio = 1;
 diff = 1;
 iter = 0;
