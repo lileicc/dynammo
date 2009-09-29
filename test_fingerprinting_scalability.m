@@ -11,8 +11,9 @@ GapTick = ceil(N / 10);
 Trials = 10 : GapTick : N;
 time = zeros(length(candM), length(Trials));
 i = 1;
+j = 1;
 for M = candM
-  j = 1;
+  i = 1;
   for LEN = Trials
     tic;
     fingerprint(X(1:M, 1:LEN), 'Hidden', H, 'MaxIter', 20);
