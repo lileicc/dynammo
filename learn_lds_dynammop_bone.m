@@ -126,12 +126,11 @@ if (isempty(a))
   end
 else
   observed = varargin{a+1};
-  Dim = 3; % default
+  %Dim = 3; % default
   % observed can be on bone joints or on marker coordinates
-  if (size(observed, 1) < M)
-    Dim = int32(M / size(observed, 1));
-    observed = (reshape(repmat(observed', 3, 1), N, M))';
-  end
+  
+  Dim = int32(M / size(observed, 1));
+  observed = (reshape(repmat(observed', 3, 1), N, M))';
 end
 
 % get plot function 
@@ -179,7 +178,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         k = bone(i, 1);
         j = bone(i, 2);
         %                 if (~W(t, k) && W(t, j))
-        if (~W(t, k))
+        if (~observed(k * Dim, t))
           %[y, eta] = estimate_eta(Sigma, k, j, bone(i, 3), X(t, :)', C, ucap{t}, Dim);
           [y, eta] = estimate_eta(model.R, k, j, bone(i, 3), X(:, i), Dim);
           X(((k-1) * Dim + 1) : k * Dim, t) = y;
