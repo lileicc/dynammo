@@ -5,7 +5,7 @@ data = load('chlorine_level_data_cl2fullLarge.dat');
 X = data';
 N = size(X, 2);
 M = size(X, 1);
-candM = ceil(M ./ 5 .* [1:5]);
+candM = ceil(M ./ 10 .* [1:10]);
 H = 15;
 GapTick = ceil(N / 10);
 Trials = 10 : GapTick : N;
@@ -22,3 +22,14 @@ for M = candM
   end
   j = j + 1;
 end
+
+figure;
+plot(Trials, time(1, :), 'DisplayName', '17 sequences');
+hold all;
+plot(Trials, time(3, :), 'DisplayName', '50 sequences');
+plot(Trials, time(5, :), 'DisplayName', '83 sequences');
+plot(Trials, time(7, :), 'DisplayName', '117 sequences');
+plot(Trials, time(9, :), 'DisplayName', '150 sequences');
+legend('show', 'Location', 'Best');
+xlabel('sequence length (ticks)');
+ylabel('wall clock time(s)');
