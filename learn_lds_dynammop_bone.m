@@ -162,7 +162,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   X(~observed) = Y(~observed);
   
   % make the bone contraints
-  if ((iter > 100) && (rem(floor(iter / 4), 25) ~= 0))
+  if (((iter > 20) && (rem(floor(iter / 4), 25) ~= 0)) || (iter > 500))
     % do bone length constraint
     %[u, V, P, logli] = forward(X, A, Gamma, C, Sigma, u0, V0);
     
