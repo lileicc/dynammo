@@ -1,4 +1,4 @@
-function [group, entrop, P, D, mu0] = fingerprint_classify(X, varargin)                                             
+function [group, entrop, P, D, mu0, coordinate] = fingerprint_classify(X, varargin)                                             
 % kalman fingerprinting clustering
 %  (PLF method)
 % X is N * M matrix, N is the duration, M is number of sequences
@@ -8,7 +8,7 @@ function [group, entrop, P, D, mu0] = fingerprint_classify(X, varargin)
 % example:
 % cls = [1 1 2 2];
 % [group, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 10,
-% 'Iteration', 100, 'Class', cls);
+% 'MaxIter', 100, 'Class', cls);
 
 [P, D, mu0] = fingerprint(X, varargin{:});
 
@@ -28,7 +28,6 @@ end
 [component, coordinate] = princomp(Q, 'econ');
 group = sign(coordinate(:,1));
 
-%class = int32([1 1 1 2 2]);
 class = varargin{find(strcmp('Class', varargin), 1) + 1};
 cmpca = confusionmat(class, group);
 cmpcah = condentropy(cmpca);

@@ -31,7 +31,7 @@ function [model, LL] = learn_lds(X, varargin)
 %   'FullR', if presented, will learn any possible R
 %  Note these options could not coexist for the same covariance matrix.
 %  Default (no args given) the algorithm will learn with H=M, MaxIter=10,
-%  diagonal Q0, Q, R.
+%  diagonal and isotropic Q0, Q, R.
 %
 % Returns:
 %   model: a struct with the following attributes:
