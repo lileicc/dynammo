@@ -4,7 +4,7 @@ DYNAMMOFILE=backward.m \
  demo_dynammo.m \
  estimate_missing.m \
  forward.m \
- learn_lds \
+ learn_lds.m \
  learn_lds_dynammo.m \
  linear_interp.m \
  logdet.m \
