@@ -4,6 +4,8 @@ function [error_finger_all, ratio_finger_all, h_finger_all] = runall_fingerprint
 % the resulting ratio is sorted descently, and the error is drawn from
 % skyline shape.
 % see fingerprint_compress_dynamic.m for additional arguments
+% Optional Args:
+%   'Hidden': candidate of hidden dimensions
 
 error_finger_all = [];
 ratio_finger_all = [];
