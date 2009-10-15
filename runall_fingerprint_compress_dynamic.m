@@ -26,3 +26,4 @@ for HIDDEN = cands
 end
 [ratio_finger_all, tmpIdx] = sort(ratio_finger_all, 'descend');
 error_finger_all = cummin(error_finger_all(tmpIdx)); % get the skyline plot
+h_finger_all = h_finger_all(tmpIdx);
