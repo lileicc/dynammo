@@ -8,7 +8,12 @@ function [error_finger_all, ratio_finger_all, h_finger_all] = runall_fingerprint
 error_finger_all = [];
 ratio_finger_all = [];
 h_finger_all = [];
-cands = [1 : 4, 5:5:size(X, 1)];
+a = find(strcmp('Hidden', varargin), 1);
+if (isempty(a))
+  cands = [1 : 4, 5:5:size(X, 1)];
+else
+  cands = varargin{a+1};
+end
 for HIDDEN = cands  
   [error_f, ratio_f] = fingerprint_compress_dynamic(X, 'Hidden', HIDDEN, varargin{:});
   apsize = length(error_f);
