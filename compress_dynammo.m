@@ -47,13 +47,15 @@ M = size(X, 1);
 a = find(strcmp('Model', varargin), 1);
 if (isempty(a))
   [model, X] = learn_lds_dynammo(X, varargin{:});
-  [Ex] = backward(forward(X, model), model);
+  [mu, V, P] = forward(X, model);
+  [Ex] = backward(mu, V, P, model);
 else 
   model = varargin{a+1};
   if (iscell(varargin{a+2})) 
     Ex = varargin{a+2};
   else
-    [Ex] = backward(forward(X, model), model);
+    [mu, V, P] = forward(X, model);
+    [Ex] = backward(mu, V, P, model);
   end
 end
 

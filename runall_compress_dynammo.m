@@ -4,11 +4,18 @@ function [error_dynammo_all, ratio_dynammo_all, h_dynammo_all] = runall_compress
 % the resulting ratio is sorted descently, and the error is drawn from
 % skyline shape.
 % see compress_dynammo.m for additional arguments
+% Optional Args:
+%   'Hidden': candidate of hidden dimensions
 
 error_dynammo_all = [];
 ratio_dynammo_all = [];
 h_dynammo_all = [];
-cands = [1 : 4, 5:5:size(X, 1)];
+a = find(strcmp('Hidden', varargin), 1);
+if (isempty(a))
+  cands = [1 : 4, 5:5:size(X, 1)];
+else
+  cands = varargin{a+1};
+end
 for HIDDEN = cands  
   [error, ratio] = compress_dynammo(X, 'Hidden', HIDDEN, varargin{:});
   apsize = length(error);
@@ -19,3 +26,4 @@ for HIDDEN = cands
 end
 [ratio_dynammo_all, tmpIdx] = sort(ratio_dynammo_all, 'descend');
 error_dynammo_all = cummin(error_dynammo_all(tmpIdx)); % get the skyline plot
+h_dynammo_all = h_dynammo_all(tmpIdx);
