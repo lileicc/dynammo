@@ -24,7 +24,7 @@ P = model.C * V;
 mu0 = V \ model.mu0; % mapped initial
 
 % get the hidden states
-[u_k, V_k, P_k] = forward(X, model);
+[u_k, V_k, P_k] = forward(X, model, varargin{:});
 [Ex] = backward(u_k, V_k, P_k, model);
 zhat = cell(size(Ex));
 for i = 1 : length(zhat)

@@ -1,4 +1,4 @@
-function [mu, V, P, logli, X] = forward_fly(X, model, observed)
+function [mu, V, P, logli, X] = forward_fly(X, model, observed, varargin)
 % The forward message passing for LDS (Kalman filtering) with missing
 % values, used in DynaMMo+ algorithm (on the fly estimation of missing values).
 % see learn_lds_dynammop.m
@@ -16,6 +16,9 @@ function [mu, V, P, logli, X] = forward_fly(X, model, observed)
 %     Q0: initial covariance, H * H
 %   observed: a matrix with the same size as X, with binary
 %   values denoting whether X(i,j) is observed(1) or missing (0).
+%
+% Optional Args:
+%   'Fast': use woodbery lemma for inverse of the matrix
 %
 % Returns:
 %   mu is cell 1 * N, each with a matrix H * 1
@@ -39,6 +42,15 @@ mu{1} = model.mu0;
 V{1} = model.Q0;
 logli = 0;
 
+FAST = false;
+a = find(strcmp('Fast', varargin), 1);
+if (~isempty(a))
+    FAST = true;
+    invR = pinv(model.R);
+    invRC = invR * model.C;
+    invCRC = model.C' * invRC;
+end
+
 for i = 1:N
   if (i == 1)
     KP = model.Q0;    
@@ -48,8 +60,12 @@ for i = 1:N
     KP = P{i-1};
     mu{i} =  model.A * mu{i-1};
   end
-  sigma_c = model.C * KP * model.C' + model.R;
-  invSig = pinv(sigma_c);
+  if (FAST)
+    invSig = invR - invRC / (pinv(KP) + invCRC) * invRC';    
+  else
+    sigma_c = model.C * KP * model.C' + model.R;
+    invSig = pinv(sigma_c);
+  end  
   K = KP * model.C' * invSig;
   u_c = model.C * mu{i};
   X(~observed(:, i), i) = u_c(~observed(:, i));
@@ -60,5 +76,5 @@ for i = 1:N
   if (posDef < 0)
     warning('det of not positive definite < 0');
   end
-  logli = logli - M/2 * log(2 * pi) - logdet(sigma_c, 'chol') / 2 - posDef;
+  logli = logli - M/2 * log(2 * pi) + logdet(invSig, 'chol') / 2 - posDef;
 end

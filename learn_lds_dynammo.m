@@ -135,7 +135,7 @@ oldLogli = -inf;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
-  [mu, V, P, logli] = forward(X, model);
+  [mu, V, P, logli] = forward(X, model, varargin{:});
   [Ez, Ezz, Ez1z] = backward(mu, V, P, model);  
   model = MLE_lds(X, Ez, Ezz, Ez1z, varargin{:});
   Y = estimate_missing(X, Ez, model, observed);

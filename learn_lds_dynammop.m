@@ -135,9 +135,9 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   oldmodel = model;
   iter = iter + 1;
   if (iter > 1)
-    [mu, V, P, logli, X] = forward_fly(X, model, observed);
+    [mu, V, P, logli, X] = forward_fly(X, model, observed, varargin{:});
   else
-    [mu, V, P, logli] = forward(X, model);
+    [mu, V, P, logli] = forward(X, model, varargin{:});
   end
   [Ez, Ezz, Ez1z] = backward(mu, V, P, model);  
   Y = estimate_missing(X, Ez, model, observed);
