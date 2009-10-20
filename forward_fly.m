@@ -66,10 +66,10 @@ for i = 1:N
     mu{i} =  model.A * mu{i-1};
   end
   if (FAST)
-    invSig = invR - invRC / (pinv(KP) + invCRC) * invRC';    
+    invSig = invR - invRC / (inv(KP) + invCRC) * invRC';    
   else
     sigma_c = model.C * KP * model.C' + model.R;
-    invSig = pinv(sigma_c);
+    invSig = inv(sigma_c);
   end  
   K = KP * model.C' * invSig;
   u_c = model.C * mu{i};
