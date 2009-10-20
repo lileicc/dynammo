@@ -153,7 +153,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   oldmodel = model;
   iter = iter + 1;
   if (iter > 1)
-    [mu, V, P, logli, X] = forward_fly(X, model, observed, varargin{:});
+    [mu, V, P, X, logli] = forward_fly(X, model, observed, varargin{:});
   else
     [mu, V, P, logli] = forward(X, model, varargin{:});
   end
@@ -324,7 +324,7 @@ CONV_BOUND = 1e-6;
 %Y = zeros(N,M);
 
 %% initial estimation to get loglikelihood
-%[u, V, P, oldLogli, Y] = forward_fly(X, A, Gamma, C, Sigma, u0, V0, observed);
+%[u, V, P, Y, oldLogli] = forward_fly(X, A, Gamma, C, Sigma, u0, V0, observed);
 %X(missing) = Y(missing);
 
 % do not use on the fly initially, since we use linear interp
@@ -357,7 +357,7 @@ while ((workingtag~=0) && (iter < maxIter))
     iter = iter + 1;
     
     % forward belief propagation
-    [u, V, P, logli, Y] = forward_fly(X, A, Gamma, C, Sigma, u0, V0, observed);
+    [u, V, P, Y, logli] = forward_fly(X, A, Gamma, C, Sigma, u0, V0, observed);
     X(missing) = Y(missing);
     
     % backward propagation
@@ -483,7 +483,7 @@ end
 %         [ucap, Vcap, J] = backward(u, V, P, A);
 %         [A, Gamma, C, Sigma, u0, V0] = MLE_kalman(X, ucap, Vcap, J, diagG, diagS);
 %     %end
-%     [u, V, P, logli, Y] = forward_fly(X, A, Gamma, C, Sigma, u0, V0, observed);
+%     [u, V, P, Y, logli] = forward_fly(X, A, Gamma, C, Sigma, u0, V0, observed);
 %     X(missing) = Y(missing);
 %     
 %     % backward propagation

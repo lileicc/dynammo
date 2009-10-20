@@ -1,4 +1,4 @@
-function [mu, V, P, logli, X] = forward_fly(X, model, observed, varargin)
+function [mu, V, P, X, logli] = forward_fly(X, model, observed, varargin)
 % The forward message passing for LDS (Kalman filtering) with missing
 % values, used in DynaMMo+ algorithm (on the fly estimation of missing values).
 % see learn_lds_dynammop.m
@@ -51,6 +51,11 @@ if (~isempty(a))
     invCRC = model.C' * invRC;
 end
 
+LOGLI = true;
+if (nargout < 5)
+  LOGLI = false;
+end
+
 for i = 1:N
   if (i == 1)
     KP = model.Q0;    
@@ -72,9 +77,11 @@ for i = 1:N
   delta = X(:, i) - u_c;
   mu{i} = mu{i} + K * delta;
   V{i} = (Ih - K * model.C) * KP;
-  posDef = delta' * invSig * delta / 2;
-  if (posDef < 0)
-    warning('det of not positive definite < 0');
+  if (LOGLI)
+    posDef = delta' * invSig * delta / 2;
+    if (posDef < 0)
+      warning('det of not positive definite < 0');
+    end
+    logli = logli - M/2 * log(2 * pi) + logdet(invSig, 'chol') / 2 - posDef;
   end
-  logli = logli - M/2 * log(2 * pi) + logdet(invSig, 'chol') / 2 - posDef;
 end

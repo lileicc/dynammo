@@ -121,6 +121,11 @@ if (~isempty(a))
   plotFun = varargin{a+1};
 end
 
+LOGLI = true;
+if (nargout < 3)
+  LOGLI = false;
+end
+
 % use linear interpolation as an initialization
 Y = linear_interp(X, observed);
 X(~observed) = Y(~observed);
@@ -135,20 +140,28 @@ oldLogli = -inf;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
-  [mu, V, P, logli] = forward(X, model, varargin{:});
+  if (LOGLI)
+    [mu, V, P, logli] = forward(X, model, varargin{:});
+  else
+    [mu, V, P] = forward(X, model, varargin{:});
+  end
   [Ez, Ezz, Ez1z] = backward(mu, V, P, model);  
   model = MLE_lds(X, Ez, Ezz, Ez1z, varargin{:});
   Y = estimate_missing(X, Ez, model, observed);
   X(~observed) = Y(~observed);
-  logli = real(logli);
-  diff = (logli - oldLogli);
-  if (logli < oldLogli)
-    warning('Loglikelihood decreases!');
+  if (LOGLI)
+    logli = real(logli);
+    diff = (logli - oldLogli);
+    if (logli < oldLogli)
+      warning('Loglikelihood decreases!');
+    end
+    ratio = abs(diff/logli) ;
+    LL(iter) = logli;
+    oldLogli = logli;
+    fprintf('iteration = %d, logli = %d\n', iter, logli);
+  else
+    fprintf('iteration = %d\n', iter);
   end
-  ratio = abs(diff/logli) ;
-  LL(iter) = logli;
-  oldLogli = logli;
-  fprintf('iteration = %d, logli = %d\n', iter, logli);
   if (exist('plotFun'))
     plotFun(X);
     drawnow;
