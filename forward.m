@@ -22,7 +22,7 @@ function [mu, V, P, logli] = forward(X, model, varargin)
 %   mu is cell 1 * N, each with a matrix H * 1
 %   V is cell 1 * N, each with a matrix H * H
 %   P is cell 1 * N, each with a matrix H * H
-%   logli: log-likelihood of the data under the current model.
+%   logli: log-likelihood of the data under the current model. will
 %
 
 N = size(X, 2);
@@ -64,20 +64,18 @@ for i = 1:N
     mu{i} =  model.A * mu{i-1};
   end
   if (FAST)
-%     invSig = invR - invRC * ((inv(KP) + invCRC) \ invRC');    
     invSig = invR - invRC / (inv(KP) + invCRC) * invRC';    
+%     invSig = invR - invRC * ((inv(KP) + invCRC) \ invRC');    
   else
     sigma_c = model.C * KP * model.C' + model.R;
     %invSig = pinv(sigma_c);
     invSig = inv(sigma_c);
   end
-  % KP' == KP
   K = KP * model.C' * invSig;
   u_c = model.C * mu{i};
   delta = X(:, i) - u_c;
   mu{i} = mu{i} + K * delta;
   V{i} = (Ih - K * model.C) * KP;
-  
   if (LOGLI)
     posDef = delta' * invSig * delta / 2;
     if (posDef < 0)
