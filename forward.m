@@ -41,12 +41,17 @@ V{1} = model.Q0;
 logli = 0;
 
 FAST = false;
-a = find(strcmp('Fast', varargin), 1);
-if (~isempty(a))
+a = strcmp('Fast', varargin);
+if (any(a))
     FAST = true;
-    invR = pinv(model.R);
+    invR = inv(model.R);
     invRC = invR * model.C;
     invCRC = model.C' * invRC;
+end
+
+LOGLI = true;
+if (nargout < 4)
+  LOGLI = false;
 end
 
 for i = 1:N
@@ -59,19 +64,25 @@ for i = 1:N
     mu{i} =  model.A * mu{i-1};
   end
   if (FAST)
-    invSig = invR - invRC / (pinv(KP) + invCRC) * invRC';    
+%     invSig = invR - invRC * ((inv(KP) + invCRC) \ invRC');    
+    invSig = invR - invRC / (inv(KP) + invCRC) * invRC';    
   else
     sigma_c = model.C * KP * model.C' + model.R;
-    invSig = pinv(sigma_c);
-  end  
+    %invSig = pinv(sigma_c);
+    invSig = inv(sigma_c);
+  end
+  % KP' == KP
   K = KP * model.C' * invSig;
   u_c = model.C * mu{i};
   delta = X(:, i) - u_c;
   mu{i} = mu{i} + K * delta;
   V{i} = (Ih - K * model.C) * KP;
-  posDef = delta' * invSig * delta / 2;
-  if (posDef < 0)
-    warning('det of not positive definite < 0');
+  
+  if (LOGLI)
+    posDef = delta' * invSig * delta / 2;
+    if (posDef < 0)
+      warning('det of not positive definite < 0');
+    end
+    logli = logli - M/2 * log(2 * pi) + logdet(invSig, 'chol') / 2 - posDef;
   end
-  logli = logli - M/2 * log(2 * pi) + logdet(invSig, 'chol') / 2 - posDef;
 end

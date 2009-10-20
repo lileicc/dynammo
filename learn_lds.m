@@ -85,6 +85,11 @@ else
   model = varargin{a+1};
 end
 
+LOGLI = true;
+if (nargout < 2)
+  LOGLI = false;
+end
+
 CONV_BOUND = 1e-5;
 
 ratio = 1;
@@ -95,18 +100,26 @@ oldLogli = -inf;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
-  [mu, V, P, logli] = forward(X, model, varargin{:});
+  if (LOGLI)
+    [mu, V, P, logli] = forward(X, model, varargin{:});
+  else 
+    [mu, V, P] = forward(X, model, varargin{:});
+  end
   [Ez, Ezz, Ez1z] = backward(mu, V, P, model);
   model = MLE_lds(X, Ez, Ezz, Ez1z, varargin{:});
-  logli = real(logli);
-  diff = (logli - oldLogli);
-  if (logli < oldLogli)
-    warning('Loglikelihood decreases!');
+  if (LOGLI)
+    logli = real(logli);
+    diff = (logli - oldLogli);
+    if (logli < oldLogli)
+      warning('Loglikelihood decreases!');
+    end
+    ratio = abs(diff/logli) ;
+    LL(iter) = logli;
+    oldLogli = logli;
+    fprintf('iteration = %d, logli = %d\n', iter, logli);
+  else
+    fprintf('iteration = %d\n', iter);
   end
-  ratio = abs(diff/logli) ;
-  LL(iter) = logli;
-  oldLogli = logli;
-  fprintf('iteration = %d, logli = %d\n', iter, logli);
 end
 model = oldmodel;
 
