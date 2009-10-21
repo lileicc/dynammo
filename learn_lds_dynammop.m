@@ -156,15 +156,19 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   Y = estimate_missing(X, Ez, model, observed);
   X(~observed) = Y(~observed);
   model = MLE_lds(X, Ez, Ezz, Ez1z, varargin{:});  
-  logli = real(logli);
-  diff = (logli - oldLogli);
-  if (logli < oldLogli)
-    warning('Loglikelihood decreases!');
+  if (LOGLI)
+    logli = real(logli);
+    diff = (logli - oldLogli);
+    if (logli < oldLogli)
+      warning('Loglikelihood decreases!');
+    end
+    ratio = abs(diff/logli) ;
+    LL(iter) = logli;
+    oldLogli = logli;
+    fprintf('iteration = %d, logli = %d\n', iter, logli);
+  else
+    fprintf('iteration = %d\n', iter);
   end
-  ratio = abs(diff/logli) ;
-  LL(iter) = logli;
-  oldLogli = logli;
-  fprintf('iteration = %d, logli = %d\n', iter, logli);
   if (exist('plotFun'))
     plotFun(X);
     drawnow;
