@@ -16,5 +16,5 @@ h = figure;
 hold on;
 plot(ratio_svd_all, error_svd_all, 'b--', 'LineWidth', 2, 'DisplayName', 'PCA');
 plot(ratio_dynammo_all, error_dynammo_all, 'g:', 'LineWidth', 2, 'DisplayName', 'DynaMMo');
-plot(ratio_finger_all, error_finger_all, 'r', 'LineWidth', 2, 'DisplayName', 'PLF');
+plot(ratio_finger_all, error_finger_all, 'r', 'LineWidth', 2, 'DisplayName', 'PLiF');
 legend show;
