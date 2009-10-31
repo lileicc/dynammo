@@ -37,5 +37,8 @@ plot(cos([1:100]*2*pi/100), sin([1:100]*2*pi/100), 'black')
 axis equal;
 
 figure;
-[nouse, tmpidx] = sort(group);
-imagesc(features(tmpidx, :));
+[nouse, tmpidx] = sort(group, 'descend');
+imagesc(features(tmpidx, 1:2));
+
+figure; 
+imagesc(abs(P(tmpidx, 2:2:6)));
