@@ -1,4 +1,4 @@
-function [group, entrop, P, D, mu0, coordinate] = fingerprint_classify(X, varargin)                                             
+function [group, entrop, P, D, mu0, coordinate, component] = fingerprint_classify(X, varargin)                                             
 % kalman fingerprinting clustering
 %  (PLF method)
 % X is N * M matrix, N is the duration, M is number of sequences
