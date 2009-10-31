@@ -1,3 +1,5 @@
+% testing the fingerprint clustering on mocap data
+
 clear;
 load('motion16-labeled.1.mat');
 classind = [find(class==2); find(class==3)];
