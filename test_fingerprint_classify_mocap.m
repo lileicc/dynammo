@@ -25,7 +25,7 @@ X33 = motion_dim{33}(:, classind);
 
 X = X33';
 trueclass = class(classind);
-[group, entrop, P, D, mu0, features, components] = fingerprint_classify(X, 'Hidden', 7, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
+[group, entrop, P, D, mu0, features, components] = fingerprint_classify(X, 'Hidden', 8, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
 figure;
 hold all;
 scatter(features(trueclass==2, 1), features(trueclass==2, 2));

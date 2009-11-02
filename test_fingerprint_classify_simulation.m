@@ -47,3 +47,39 @@ line(xa, [2.5, 2.5],'LineStyle', '--', 'Color', 'black', 'LineWidth', 2);
 line(xa, [3.5, 3.5],'LineStyle', '--', 'Color', 'black', 'LineWidth', 2);
 line(xa, [4.5, 4.5],'LineStyle', '--', 'Color', 'black', 'LineWidth', 2);
 line([1.5, 1.5], [0.5, 5.5], 'LineWidth', 2, 'LineStyle', '--', 'Color', 'black');
+
+
+%% harmonics grouping example
+N = 500;
+t = (1:N)';
+a = zeros(N, 2);
+f1 = 1 / 100;
+f2 = 1 / 70;
+t1 = 2 * pi * f1 * t;
+t2 = 2 * pi * f2 * t;
+b = [sin(t1) , cos(t1), sin(t1) + cos(t1)];
+
+f1 = 1 / 110;
+f2 = 1 / 30;
+t1 = 2 * pi * f1 * t;
+t2 = 2 * pi * f2 * t;
+c = [sin(t1) + 0.2 * sin(t2), cos(t1) + 0.2 * sin(t2 + pi/4)];
+
+X = [b c]';
+M = size(X, 1);
+figure;
+for i = 1:M
+  subplot(M, 1, i);
+  hold on;
+  ylim([-2, 2]);
+  plot(X(i, :));
+  if (i > 1)
+    plot(X(1, :), 'black--');
+  end
+end
+
+class = [1 1 1 2 2];
+
+[group, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 6, 'MaxIter', 100, 'Class', class);
+
+periods = 2 * pi ./ angle(D);
