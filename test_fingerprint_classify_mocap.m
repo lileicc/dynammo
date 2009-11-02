@@ -39,6 +39,8 @@ axis equal;
 figure;
 [nouse, tmpidx] = sort(trueclass);
 imagesc(features(tmpidx, 1:2));
+set(gca,'XTick', 1:2, 'XTickLabel',['FP1'; 'FP2']);
+colormap(grayColor);
 
 figure; 
 imagesc(abs(P(tmpidx, 2:2:6)));
