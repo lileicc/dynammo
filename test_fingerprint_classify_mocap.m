@@ -30,6 +30,9 @@ figure;
 hold all;
 scatter(features(trueclass==2, 1), features(trueclass==2, 2));
 scatter(features(trueclass==3, 1), features(trueclass==3, 2));
+axis equal;
+xlabel('FP1');
+ylabel('FP2');
 
 figure; plot(D, '*');
 hold on;
