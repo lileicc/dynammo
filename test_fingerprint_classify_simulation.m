@@ -98,6 +98,8 @@ end
 
 figure;
 imagesc(Q);
+set(gca,'YTick', 1:5, 'YTickLabel',1:5);
+set(gca,'XTick', 1:3, 'XTickLabel', 1:3);
 colormap(gray);
 xa = xlim;
 line(xa, [1.5, 1.5],'LineStyle', '--', 'Color', 'black', 'LineWidth', 2);
@@ -110,6 +112,8 @@ line([2.5, 2.5], [0.5, 5.5], 'LineWidth', 2, 'LineStyle', '--', 'Color', 'black'
 
 figure;
 imagesc(feature(:, 1:2));
+set(gca,'YTick', 1:5, 'YTickLabel',1:5);
+set(gca,'XTick', 1:2, 'XTickLabel',['F1'; 'F2']);
 colormap(gray);
 xa = xlim;
 line(xa, [1.5, 1.5],'LineStyle', '--', 'Color', 'black', 'LineWidth', 2);
@@ -121,6 +125,8 @@ line([1.5, 1.5], [0.5, 5.5], 'LineWidth', 2, 'LineStyle', '--', 'Color', 'black'
 [coeff, score] = princomp(X);
 figure;
 imagesc(score(:, 1:2));
+set(gca,'YTick', 1:5, 'YTickLabel',1:5);
+set(gca,'XTick', 1:2, 'XTickLabel',['C1'; 'C2']);
 colormap(gray);
 xa = xlim;
 line(xa, [1.5, 1.5],'LineStyle', '--', 'Color', 'black', 'LineWidth', 2);
