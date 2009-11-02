@@ -22,6 +22,9 @@ end
 
 figure;
 scatter(time_basic, time_fast);
+axis equal;
 hold on;
 xx = xlim;
 plot(xx, xx, '--black');
+xlabel('PLiF-basic');
+ylabel('PLiF-basic');
