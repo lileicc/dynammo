@@ -16,6 +16,8 @@ j = 1;
 for M = candM
   i = 1;
   for LEN = Trials
+    fprintf('@%d, %d \n', i, j);
+    
     tic;
     fingerprint(X(1:M, 1:LEN), 'Hidden', H, 'MaxIter', 20);
     time_slow(j, i) = toc;
