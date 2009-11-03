@@ -47,3 +47,11 @@ colormap(grayColor);
 
 figure; 
 imagesc(abs(P(tmpidx, 2:2:6)));
+
+%% for ploting data
+tt = [15, 22, 45, 38, 8]; 
+m = length(tt);
+for i = 1:m;  
+  subplot(m, 1, i); 
+  plot(X(:, tt(i))); 
+end
