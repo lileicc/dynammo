@@ -41,6 +41,7 @@ plot(Trials, time(9, :), '-.', 'LineWidth', 2, 'DisplayName', '150 sequences');
 legend('show', 'Location', 'Best');
 xlabel('sequence length (ticks)');
 ylabel('wall clock time (s)');
+xlim([0,4500]);
 
 figure;
 hold all;
@@ -48,7 +49,8 @@ plot(candM, time_slow(:, 10), '--', 'LineWidth', 2, 'DisplayName', 'PLiF-basic')
 plot(candM, time(:, 10), 'LineWidth', 2, 'DisplayName', 'PLiF');
 xlabel('# of sequences');
 ylabel('wall clock time (s)');
-
+legend('show', 'Location', 'Best');
+xlim([0,170]);
 
 % figure;
 % hold all;
