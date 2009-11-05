@@ -72,12 +72,13 @@ end
 
 model.C = Sxz / Szz;
 
+
 if (any(strcmp('DiagR', varargin)))
   model.R = diag((diag(X * X') - 2 * diag(model.C * Sxz') + diag(model.C * Szz * model.C')) / N);
 elseif (any(strcmp('FullR', varargin)))
   tmp = model.C * Sxz';
-  model.R = (X' * X - tmp - tmp' + model.C * Szz * model.C') / N;
+  model.R = (X * X' - tmp - tmp' + model.C * Szz * model.C') / N;
 else
-  delta = (trace(X' * X) - 2 * trace(model.C * Sxz') + trace(model.C * Szz * model.C')) / N / M;
+  delta = (trace(X * X') - 2 * trace(model.C * Sxz') + trace(model.C * Szz * model.C')) / N / M;
   model.R = diag(repmat(delta, M, 1));
 end

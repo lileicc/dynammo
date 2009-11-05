@@ -7,12 +7,13 @@ for i = 1:length(filenames)
 end
 
 X = data;
+clear data;
 N = size(X, 2);
 M = size(X, 1);
 candM = 10;
 H = 10;
 GapTick = ceil(N / 20);
-Trials = GapTick : GapTick : N;
+Trials = N : (-GapTick) : GapTick;
 time = zeros(length(candM), length(Trials));
 time_slow = zeros(length(candM), length(Trials));
 i = 1;
@@ -25,10 +26,16 @@ for M = candM
     tic;
     fingerprint(X(1:M, 1:LEN), 'Hidden', H, 'MaxIter', 20);
     time_slow(j, i) = toc;
-   
+    
+    clear ans;
+    pack;
+    
     tic;
     fingerprint(X(1:M, 1:LEN), 'Hidden', H, 'MaxIter', 20, 'Fast');
     time(j, i) = toc;   
+    
+    clear ans;
+    pack;
     
     i = i + 1;
   end
