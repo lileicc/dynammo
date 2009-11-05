@@ -2,9 +2,9 @@ function [errors, ratios, D, mu0, Pr, Qc, Qs, Qm, Rc, Rs, Rm, P, Y, zhat] = fing
 % kalman fingerprinting (PLF method) compressiong,
 % compression using dynamic programming on the optimal error 
 %
-% X: N * M matrix, N is the duration, M is number of sequences
+%   X: M * N matrix, M is number of sequences, N is the time duration.
 %
-% the usage is like: fingerprint_compress_dynamic(X, 'Hidden', 10, 'Iteration',
+% the usage is like: fingerprint_compress_dynamic(X, 'Hidden', 10, 'MaxIter',
 % 100)
 %
 % Option:

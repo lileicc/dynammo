@@ -4,7 +4,7 @@ function [P, D, mu0, zhat] = fingerprint(X, varargin)
 % Args:
 %   X: M * N matrix, M is number of sequences, N is the time duration.
 %
-% the usage is like: fingerprint(X, 'Hidden', 10, 'Iteration', 100)
+% the usage is like: fingerprint(X, 'Hidden', 10, 'MaxIter', 100)
 %
 % Example: 
 %

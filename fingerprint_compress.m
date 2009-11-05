@@ -1,9 +1,9 @@
 function [error, ratio, D, mu0, Pr, Qc, Qs, Qm, Rc, Rs, Rm, P, Y, zhat] = fingerprint_compress(X, varargin)
 % kalman fingerprinting (PLF method) compressiong,
 % compression using only the model and initial values.
-% X: N * M matrix, N is the duration, M is number of sequences
+%   X: M * N matrix, M is number of sequences, N is the time duration.
 %
-% the usage is like: fingerprint_compress(X, 'Hidden', 10, 'Iteration', 100)
+% the usage is like: fingerprint_compress(X, 'Hidden', 10, 'MaxIter', 100)
 
 N = size(X, 1);
 M = size(X, 2);

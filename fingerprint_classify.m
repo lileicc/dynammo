@@ -1,7 +1,7 @@
 function [group, entrop, P, D, mu0, coordinate, component] = fingerprint_classify(X, varargin)                                             
 % kalman fingerprinting clustering
 %  (PLF method)
-% X is N * M matrix, N is the duration, M is number of sequences
+%   X: M * N matrix, M is number of sequences, N is the time duration.
 % group is a vector size of M, telling the clusters
 % entropy is the conditional entropy of prediction vs the groundtruth. 
 % 
