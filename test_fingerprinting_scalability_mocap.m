@@ -8,7 +8,7 @@ load 'data_global_new.mat';
 N = length(data);
 time_fast = zeros(N, 1);
 time_basic = zeros(N, 1);
-for i = [15, 32, 45] %1 : N
+for i = 1 : N %[15, 32, 45] %1 : N
   X = data{i}(:, 4:96)';
   
   tic;
@@ -22,12 +22,15 @@ end
 
 figure;
 scatter(time_basic, time_fast);
-axis equal;
-hold on;
+axis square;
 xx = xlim;
-plot(xx, xx, '--black');
+xlim([0, xx(2)]);
+ylim([0, xx(2)]);
+hold on;
+line([0, 0], [xx(2), xx(2)], 'Color', 'black');
 xlabel('PLiF-basic');
-ylabel('PLiF-basic');
+ylabel('PLiF');
 
+figure;
 ttt = [time_basic([15, 32, 45]) time_fast([15, 32, 45])];
 bar(ttt)
