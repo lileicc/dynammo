@@ -6,7 +6,7 @@ for i = 1:length(filenames)
   data = [data; F1'];
 end
 
-X = data;
+X = log(data);
 clear data;
 N = size(X, 2);
 M = size(X, 1);
