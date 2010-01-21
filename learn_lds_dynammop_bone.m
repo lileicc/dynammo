@@ -180,7 +180,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         %                 if (~W(t, k) && W(t, j))
         if (~observed(k * Dim, t))
           %[y, eta] = estimate_eta(Sigma, k, j, bone(i, 3), X(t, :)', C, ucap{t}, Dim);
-          [y, eta] = estimate_eta(model.R, k, j, bone(i, 3), X(:, i), Dim);
+          [y, eta] = estimate_eta(model.R, k, j, bone(i, 3), X(:, t), Dim); % fixed bug, mistyped 't' 2010/1/19
           X(((k-1) * Dim + 1) : k * Dim, t) = y;
           %                 elseif (W(t, k) && ~W(t, j))
           %                     [y, eta] = estimate_eta(Sigma, j, k, bone(i, 3), X(t, :)', C, ucap{t}, Dim);
