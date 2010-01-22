@@ -112,6 +112,11 @@ if (isempty(a))
   end
 else
   observed = varargin{a+1};
+  %Dim = 3; % default
+  % observed can be on bone joints or on marker coordinates
+  
+  Dim = int32(M / size(observed, 1));
+  observed = (reshape(repmat(observed', Dim, 1), N, M))';
 end
 
 % get plot function 

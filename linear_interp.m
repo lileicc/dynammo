@@ -3,18 +3,19 @@ function [Y] = linear_interp(X, W)
 % W is the indication matrix, 1=observed, 0=missing.
 % use the matlab internal interpolation method
 % modified by leili (2009-5-5)
+% modified by leili (2010-1-21)
 
-N = size(X, 1);
-M = size(X, 2);
+M = size(X, 1);
+N = size(X, 2);
 idx = 1:N;
 Y = X;
 for i = 1:M
-  obs = W(:,i) ~= 0;
+  obs = W(i, :) ~= 0;
   if sum(obs) > 1 
-      yy = interp1(idx(obs), X(obs, i), idx(~obs));
-      Y(~obs, i) = yy;
+      yy = interp1(idx(obs), X(i, obs), idx(~obs));
+      Y(i, ~obs) = yy;
   else 
-      Y(~obs, i) = 0;
+      Y(i, ~obs) = 0;
   end
 end
 
