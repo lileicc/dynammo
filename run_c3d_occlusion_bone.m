@@ -54,10 +54,10 @@ play_mocap_skel(Y, lab.colheaders, sprintf('%s_%s_%d-%d_bone_fly.avi', c3dcsv, n
 i = missing_bone(1);
 figure;
 subplot(4,1,1);
-plot(X((i*3 -2):(i*3), :));
+plot(X((i*3 -2):(i*3), :)');
 title('original');
 subplot(4,1,2);
-plot(Y((i*3 -2):(i*3), :));
+plot(Y((i*3 -2):(i*3), :)');
 title('reconstructed');
 subplot(4,1,3);
 dx = sqrt(sum((X((37*3 - 2) : (37*3), :) - X((i*3 -2):(i*3), :)).^2));
