@@ -149,7 +149,7 @@ diff = 1;
 iter = 0;
 oldLogli = -inf;
 
-ET = cell(1, N);
+ET = cell(N, 2);
 for t = 1:N
   k = 0;
   templist = [];
@@ -159,8 +159,9 @@ for t = 1:N
       templist = [templist, i];
     end
   end
+  ET{t, 2} = k;
   if (k > 0)
-    ET{t} = zeros(N, k * N);
+    ET{t, 1} = zeros(N, k * N);    
     id = 1;
     for i = templist      
       E = zeros(N, Dim);
@@ -168,7 +169,7 @@ for t = 1:N
         E(j + (bone(i, 1)-1) * Dim, j) = 1;
         E(j + (bone(i, 2)-1) * Dim, j) = -1;
       end
-      ET{t}(:, idx:(idx + N - 1)) = E * E';
+      ET{t, 1}(:, idx:(idx + N - 1)) = E * E';
       idx = idx + N;
     end      
   end
@@ -199,8 +200,14 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
     for t = 1 : N
       % for i = 1 : size(bone, 1)
       % use random optimization order
-      invSigma = inv(Sigma);
-      X(:, t) = ;
+      if (~isempty(ET{t}))
+        invSigma = inv(Sigma);
+        y = X(:, t);
+        lamb = 
+        
+        invSigma;
+        ET{t}
+      end
       
       
     end
