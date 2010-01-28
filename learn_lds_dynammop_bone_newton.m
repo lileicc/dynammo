@@ -154,7 +154,7 @@ for t = 1:N
   k = 0;
   templist = [];
   for i = 1:size(bone, 1)
-    if ((bone(i,1) < bone(i, 2)) && (~observed(bone(i, 1)) || ~observed(bone(i, 2))))
+    if ((bone(i,1) < bone(i, 2)) && (~observed(Dim * bone(i, 1), t) || ~observed(Dim * bone(i, 2), t)))
       k = k + 1;
       templist = [templist, i];
     end
@@ -188,7 +188,8 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   X(~observed) = Y(~observed);
   
   % make the bone contraints
-  if (((iter > 20) && (rem(floor(iter / 4), 25) ~= 0)) || (iter > 500))
+  %if (((iter > 20) && (rem(floor(iter / 4), 25) ~= 0)) || (iter > 500))
+  if (iter > 0)
     % do bone length constraint
     %[u, V, P, logli] = forward(X, A, Gamma, C, Sigma, u0, V0);
     
@@ -200,15 +201,15 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
       % for i = 1 : size(bone, 1)
       % use random optimization order
       if (ET{t, 2} > 0) % there are active bone constraints for this time tick
-        invSigma = inv(Sigma);
+        invSigma = inv(model.R);
         k = ET{t, 2};
         y = [X(:, t); zeros(k, 1)];
         xtilde = X(:, t);
         A = invSigma;
         B = zeros(M, k);
         D = zeros(M+k, 1);
-        D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
-        while (y)
+        deltachange = 1;
+        while (deltachange > 0.0001)
           for i = 1 : k
             A = A + ET{t, 1}{i} * y(M + i);
             B(:, i) = ET{t, 1}{i} * y(1:M);
@@ -219,19 +220,14 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             dist = bone(ET{t, 3}(i), 3);
             D(M+i) = norm(y((u*Dim - 2) : (u * Dim)) - y((v*Dim - 2) : (v * Dim))) ^ 2 - dist ^ 2;
           end
+          D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
           C = [A, B; B', zeros(k, k)];
           deltay = - pinv(C) * D;
-          
-          
-          
-          
-          
+          y = y + deltay; 
+          deltachange = sum(abs(deltay));
         end
-        
-        invSigma;
-        ET{t}
+        X(~observed(:, t), t) = y(~observed(:, t)); 
       end
-      
       
     end
     

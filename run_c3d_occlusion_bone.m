@@ -39,7 +39,12 @@ W(missing_bone, missing_frame_start:missing_frame_end) = false;
 H = 16;
 % maxIter = 10000;
 % learning the missing value using on_the_fly_and_bone_constraints
-[model, Y, LL] = learn_lds_dynammop_bone(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+if (isempty(find(strcmp('Newton', varargin), 1)))
+  [model, Y, LL] = learn_lds_dynammop_bone(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+else
+  [model, Y, LL] = learn_lds_dynammop_bone_newton(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+end
+
 
 %% save the data
 % play_mocap_skel(X, lab.colheaders);
