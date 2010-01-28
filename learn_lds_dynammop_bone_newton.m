@@ -149,7 +149,7 @@ diff = 1;
 iter = 0;
 oldLogli = -inf;
 
-ET = cell(N, 2);
+ET = cell(N, 3);
 for t = 1:N
   k = 0;
   templist = [];
@@ -160,17 +160,16 @@ for t = 1:N
     end
   end
   ET{t, 2} = k;
+  ET{t, 3} = templist;
   if (k > 0)
-    ET{t, 1} = zeros(N, k * N);    
-    id = 1;
+    ET{t, 1} = cell(1, k);
     for i = templist      
       E = zeros(N, Dim);
       for j = 1:Dim
-        E(j + (bone(i, 1)-1) * Dim, j) = 1;
-        E(j + (bone(i, 2)-1) * Dim, j) = -1;
+        E(j + (bone(i, 1)-1) * Dim , j) = 1;
+        E(j + (bone(i, 2)-1) * Dim , j) = -1;
       end
-      ET{t, 1}(:, idx:(idx + N - 1)) = E * E';
-      idx = idx + N;
+      ET{t, 1}{i} = E * E';
     end      
   end
 end
@@ -200,10 +199,34 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
     for t = 1 : N
       % for i = 1 : size(bone, 1)
       % use random optimization order
-      if (~isempty(ET{t}))
+      if (ET{t, 2} > 0) % there are active bone constraints for this time tick
         invSigma = inv(Sigma);
-        y = X(:, t);
-        lamb = 
+        k = ET{t, 2};
+        y = [X(:, t); zeros(k, 1)];
+        xtilde = X(:, t);
+        A = invSigma;
+        B = zeros(M, k);
+        D = zeros(M+k, 1);
+        D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
+        while (y)
+          for i = 1 : k
+            A = A + ET{t, 1}{i} * y(M + i);
+            B(:, i) = ET{t, 1}{i} * y(1:M);
+            
+            % compute the difference in distance
+            u = bone(ET{t, 3}(i), 1);
+            v = bone(ET{t, 3}(i), 2);
+            dist = bone(ET{t, 3}(i), 3);
+            D(M+i) = norm(y((u*Dim - 2) : (u * Dim)) - y((v*Dim - 2) : (v * Dim))) ^ 2 - dist ^ 2;
+          end
+          C = [A, B; B', zeros(k, k)];
+          deltay = - pinv(C) * D;
+          
+          
+          
+          
+          
+        end
         
         invSigma;
         ET{t}
