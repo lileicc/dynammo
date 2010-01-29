@@ -5,10 +5,10 @@ function [model, Xhat, LL] = learn_lds_dynammop_bone_newton(X, varargin)
 % an improved version of the algorithm in 
 % Lei Li, Jim McCann, Nancy Pollard, Christos Faloutsos. DynaMMo: Mining 
 % and Summarization of Coevolving Sequences with Missing Values. 
-% KDD '09, Paris, France.
+% KDD '09, Paris, France.function [model, Xhat, LL] = learn_lds_dynammop_bone_newton(X, varargin)
 %
 % Linear Dynamical Systems are described by the following equations:
-% z_1 = mu0 + w_1
+% z_1 = mu0 + w_1function [model, Xhat, LL] = learn_lds_dynammop_bone_newton(X, varargin)
 % z_n = A z_{n-1} + w_n
 % x_n = C x_n + v_n
 % w_1 ~ N(0, Q0)
@@ -130,7 +130,7 @@ else
   % observed can be on bone joints or on marker coordinates
   
   Dim = int32(M / size(observed, 1));
-  observed = (reshape(repmat(observed', 3, 1), N, M))';
+  observed = (reshape(repmat(observed', Dim, 1), N, M))';
 end
 
 % get plot function 
@@ -163,13 +163,15 @@ for t = 1:N
   ET{t, 3} = templist;
   if (k > 0)
     ET{t, 1} = cell(1, k);
+    id = 1;
     for i = templist      
-      E = zeros(N, Dim);
+      E = zeros(M, Dim);
       for j = 1:Dim
         E(j + (bone(i, 1)-1) * Dim , j) = 1;
         E(j + (bone(i, 2)-1) * Dim , j) = -1;
       end
-      ET{t, 1}{i} = E * E';
+      ET{t, 1}{id} = E * E';
+      id = id + 1;
     end      
   end
 end
