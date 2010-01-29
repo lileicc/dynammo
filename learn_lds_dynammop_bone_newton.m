@@ -220,7 +220,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             u = bone(ET{t, 3}(i), 1);
             v = bone(ET{t, 3}(i), 2);
             dist = bone(ET{t, 3}(i), 3);
-            D(M+i) = norm(y((u*Dim - 2) : (u * Dim)) - y((v*Dim - 2) : (v * Dim))) ^ 2 - dist ^ 2;
+            D(M+i) = norm(y((u*Dim - Dim + 1) : (u * Dim)) - y((v*Dim - Dim + 1) : (v * Dim))) ^ 2 - dist ^ 2;
           end
           D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
           C = [A, B; B', zeros(k, k)];
