@@ -9,18 +9,26 @@ function [bone, bone_var, bone_length_series] = get_bones(data, varargin)
 %   determine the bone
 %   'SkeletonFile', followed by a .mat file denoting the human body
 %   skeleton
+%   'Dim', followed by a number denoting the dimension of space, default=3
 % Returns:
 %
 
+a = find(strcmp('Dim', varargin));
+if (~isempty(a))
+  Dim = varargin{a+1};
+else
+  Dim = 3;
+end
+
 N = size(data, 2);
 M = size(data, 1);
-k = M/3;
+k = M/Dim;
 dist = zeros(k, k);
 bone_length_series = zeros(N, k, k);
 variance = zeros(k, k);
 for i = 1:k
   for j = 1:k
-    bone_length_series(:, i, j) = sqrt(sum((data((i*3 - 2) : (i*3), :) - data((j*3 - 2):(j*3), :)).^2));
+    bone_length_series(:, i, j) = sqrt(sum((data((i*Dim - Dim + 1) : (i*Dim), :) - data((j*Dim - Dim + 1):(j*Dim), :)).^2));
     dist(i,j) = mean(bone_length_series(:, i, j));
     variance(i, j) = var(bone_length_series(:, i, j));
   end

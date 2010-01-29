@@ -12,7 +12,7 @@ Y = X;
 for i = 1:M
   obs = W(i, :) ~= 0;
   if sum(obs) > 1 
-      yy = interp1(idx(obs), X(i, obs), idx(~obs));
+      yy = interp1(idx(obs), X(i, obs), idx(~obs), 'linear', 'extrap');
       Y(i, ~obs) = yy;
   else 
       Y(i, ~obs) = 0;

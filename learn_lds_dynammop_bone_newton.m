@@ -176,7 +176,7 @@ for t = 1:N
   end
 end
 
-
+ALPHA = 0.2;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
@@ -225,7 +225,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
           D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
           C = [A, B; B', zeros(k, k)];
           deltay = - pinv(C) * D;
-          y = y + deltay; 
+          y = y + ALPHA * deltay; 
           deltachange = sum(abs(deltay));
         end
         X(~observed(:, t), t) = y(~observed(:, t)); 
