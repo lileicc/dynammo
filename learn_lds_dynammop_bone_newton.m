@@ -227,6 +227,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
           deltay = - pinv(C) * D;
           y = y + ALPHA * deltay; 
           deltachange = sum(abs(deltay));
+          y(observed(:, t)) = xtilde(observed(:, t));
         end
         X(~observed(:, t), t) = y(~observed(:, t)); 
       end
