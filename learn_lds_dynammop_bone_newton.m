@@ -213,8 +213,8 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         deltachange = 1;
         while (deltachange > 0.0001)
           for i = 1 : k
-            A = A + ET{t, 1}{i} * y(M + i);
-            B(:, i) = ET{t, 1}{i} * y(1:M);
+            A = A + 2 * ET{t, 1}{i} * y(M + i);
+            B(:, i) = 2 * ET{t, 1}{i} * y(1:M);
             
             % compute the difference in distance
             u = bone(ET{t, 3}(i), 1);
@@ -225,7 +225,8 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
           D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
           C = [A, B; B', zeros(k, k)];
           deltay = - pinv(C) * D;
-          y = y + ALPHA * deltay; 
+          %y = y + ALPHA * deltay; 
+          y = y + deltay; 
           deltachange = sum(abs(deltay));
           y(observed(:, t)) = xtilde(observed(:, t));
         end
