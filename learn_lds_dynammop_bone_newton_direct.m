@@ -68,7 +68,7 @@ function [model, Xhat, LL] = learn_lds_dynammop_bone_newton(X, varargin)
 % derived from old function 
 % function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman(x, H, maxIter)
 %
-% $Author$@cs.cmu.edu
+% $Author: leili $@cs.cmu.edu
 % $Date: 2010-01-21 17:42:41 -0500 (Thu, 21 Jan 2010) $
 % $Rev: 219 $
 %
@@ -149,15 +149,23 @@ diff = 1;
 iter = 0;
 oldLogli = -inf;
 
-ET = cell(N, 3);
+ET = cell(N, 5);
 for t = 1:N
   k = 0;
   templist = [];
+  ET{t, 2} = [];
   for i = 1:size(bone, 1)
-    if ((bone(i,1) < bone(i, 2)) && (~observed(Dim * bone(i, 1), t) || ~observed(Dim * bone(i, 2), t)))
-      k = k + 1;
-      templist = [templist, i];
+    u = bone(i, 1);
+    v = bone(i, 2);
+    if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
+      ET{t, 2} = [ET{t, 2} ];
+      
     end
+    
+%     if ((bone(i, 1) < bone(i, 2)) && (~observed(Dim * bone(i, 1), t) || ~observed(Dim * bone(i, 2), t)))
+%       k = k + 1;
+%       templist = [templist, i];
+%     end
   end
   ET{t, 2} = k;
   ET{t, 3} = templist;
@@ -199,20 +207,21 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
     %[ucap, Vcap, J] = backward(u, V, P, A);
     % sq = randperm(size(bone, 1));
     % estimate the missing values and lagrangian multiplier
+    invSigma = inv(model.R);
     for t = 1 : N
       % for i = 1 : size(bone, 1)
       % use random optimization order
       if (ET{t, 2} > 0) % there are active bone constraints for this time tick
-        invSigma = inv(model.R);
+        invSm = invSigma(observed(:, t), observed(:, t));
         k = ET{t, 2};
         y = [X(:, t); zeros(k, 1)];
         xtilde = X(:, t);
         deltachange = 1;
         iter_y = 0;
-        B = zeros(M, k);
-        D = zeros(M+k, 1);
         while (deltachange > 0.001 && iter_y < 10000)
-          A = invSigma;
+          A = invSm;
+          B = zeros(M, k);
+          D = zeros(M+k, 1);            
           for i = 1 : k
             A = A + ET{t, 1}{i} * y(M + i);
             B(:, i) = 2 * ET{t, 1}{i} * y(1:M);
@@ -223,7 +232,6 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             dist = bone(ET{t, 3}(i), 3);
             D(M+i) = norm(y((u*Dim - Dim + 1) : (u * Dim)) - y((v*Dim - Dim + 1) : (v * Dim))) ^ 2 - dist ^ 2;
           end
-          A = A * 2;
           D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
           C = [A, B; B', zeros(k, k)];
           deltay = - pinv(C) * D * ALPHA;
@@ -261,95 +269,6 @@ end
 model = oldmodel;
 Xhat = X;
 
-function [t] = isTiny(sigma)
-% test whether the matrix sigma is close to zero
-%
-t = (norm(sigma, 1) < 1e-10) || (any(diag(sigma) < 1e-10));
 
 
-function [x_k, eta] = estimate_eta(Sigma, k, j, bone, x, dim) 
-% newton-raphson method to find the solution to
-% f(eta) = 0
-% where f(eta) is the difference between estimated bone and expected
-% bone
-% eta <- eta - f(eta) / f'(eta)
-% now converted to x_bar = x(idk), i.e. x contains intial estimation in k-th bone %%%x_bar = G * z%%%%
-% k is the bone# of target bone (occlusion bone),
-% j is the bone# of observed one.
 
-if nargin < 8 
-    dim = 3;
-end
-
-alpha = 1; % learning rate
-
-%x_bar = G * z;
-x_bar = x;
-M = size(Sigma, 1);
-idk = ((k-1) * dim + 1) : (k * dim);
-idj = ((j-1) * dim + 1) : (j * dim);
-Sigmakj = zeros(M);
-Sigmakj(:, idk) = Sigma(:, idk) - Sigma(:, idj);
-Sigmakj(:, idj) = - Sigmakj(:, idk);
-
-eta = 0;
-deltaeta = 1;
-MAXITER = 100;
-df = 1;
-iter = 0;
-old_sign = 0;
-f = 0;
-while ((deltaeta > 1e-6) && (iter < MAXITER))
-    Ieta = eye(M) + eta * Sigmakj;
-    invEtax = Ieta \ x_bar;
-    invEtaa = Ieta \ Sigmakj;
-    deltax = invEtax(idk) - x(idj);
-    df = - 2 * (invEtaa(idk, :) * invEtax)' * deltax;
-    if (abs(df) > 1e-10) 
-        f = sum(deltax .^ 2) - bone ^ 2;
-        deltaeta = f / df;
-        eta = eta - alpha * deltaeta;
-        deltaeta = abs(deltaeta / eta) / alpha;
-        
-        if (old_sign * f < 0) 
-            alpha = alpha / 2;
-        end
-        old_sign = sign(f);
-    else 
-        deltaeta = 0;
-    end
-    iter = iter + 1;
-end
-if (abs(f) > 0.1) 
-    warning(sprintf('not getting the right eta when estimating %d from %d, f=%d', k, j, f));
-    x_k = x_bar(idk);
-else
-    x_k = invEtax(idk);
-end
-
-
-%%
-% MAXITER = 2;
-% eta = NaN;
-% iter = 0;
-% exitflag = 0;
-% while ((exitflag ~= 1) && (iter < MAXITER))
-%     [eta, fval, exitflag] = fzero(@(eta)dist_diff_eta(eta, Sigma, k, j, bone, x, dim), randn);
-%     iter = iter + 1;
-% end
-% if (exitflag ~= 1)
-%     eta = 0;
-%     warning(sprintf('fzero returns eta with exitflag=%d, for estimating %d from %d', exitflag, k, j));
-% end
-% %x_bar = G * z;
-% M = size(Sigma, 1);
-% idk = ((k-1) * dim + 1) : (k * dim);
-% idj = ((j-1) * dim + 1) : (j * dim);
-% Sigmakj = zeros(M);
-% Sigmakj(:, idk) = Sigma(:, idk) - Sigma(:, idj);
-% Sigmakj(:, idj) = - Sigmakj(:, idk);
-% 
-% Ieta = eye(M) + eta * Sigmakj;
-% %invEtax = Ieta \ x_bar;
-% invEtax = Ieta \ x;
-% x_k = invEtax(idk);
