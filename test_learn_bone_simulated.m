@@ -1,6 +1,7 @@
 t = 1 : 300;
 f1 = 1 / 100;
 u = [t / 150 - 1; t / 150 - 1];
+u = zeros(2, 300);
 x = u + [sin(2 * pi * f1 * t); cos(2 * pi * f1 * t)];
 f2 = 1 / 80;
 y = x + [sin(2 * pi * f2 * t); cos(2 * pi * f2 * t)];
@@ -15,6 +16,11 @@ observed(2, 200:300) = false;
 
 data = [u; x; y];
 bones = [1, 2, 1; 2, 1, 1; 2, 3, 1; 3, 2, 1];
-[model, Xhat, LL] = learn_lds_dynammop_bone_newton(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 3, 'Observed', observed);
+[model, Xhat, LL] = learn_lds_dynammop_bone_newton(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
 
+%% test basic learn_lds
+[model, LL] = learn_lds(data, 'Bone', bones, 'MaxIter', 1000, 'Hidden', 4, 'Observed', observed);
+[mu, V, P] = forward(data, model);
+[Ez, Ezz, Ez1z] = backward(mu, V, P, model);
+plot((model.C * cell2mat(Ez))' - data');
 

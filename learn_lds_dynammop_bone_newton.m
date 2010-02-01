@@ -211,7 +211,8 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         B = zeros(M, k);
         D = zeros(M+k, 1);
         deltachange = 1;
-        while (deltachange > 0.0001)
+        iter_y = 0;
+        while (deltachange > 0.001 && iter_y < 10000)
           for i = 1 : k
             A = A + 2 * ET{t, 1}{i} * y(M + i);
             B(:, i) = 2 * ET{t, 1}{i} * y(1:M);
@@ -224,10 +225,10 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
           end
           D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
           C = [A, B; B', zeros(k, k)];
-          deltay = - pinv(C) * D;
-          %y = y + ALPHA * deltay; 
+          deltay = - pinv(C) * D * ALPHA;
           y = y + deltay; 
           deltachange = sum(abs(deltay));
+          iter_y = iter_y + 1;
           y(observed(:, t)) = xtilde(observed(:, t));
         end
         X(~observed(:, t), t) = y(~observed(:, t)); 
