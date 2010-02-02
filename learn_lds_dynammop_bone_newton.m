@@ -139,6 +139,20 @@ if (~isempty(a))
   plotFun = varargin{a+1};
 end
 
+a = find(strcmp('NewtonAlpha', varargin), 1);
+if (~isempty(a))
+  ALPHA = varargin{a+1};
+else
+  ALPHA = 0.2;
+end
+
+a = find(strcmp('NewtonMaxIter', varargin), 1);
+if (~isempty(a))
+  Newton_MaxIter = varargin{a+1};
+else
+  Newton_MaxIter = 100;
+end
+
 % use linear interpolation as an initialization
 Y = linear_interp(X, observed);
 X(~observed) = Y(~observed);
@@ -148,6 +162,7 @@ ratio = 1;
 diff = 1;
 iter = 0;
 oldLogli = -inf;
+NEWTON_CONV_BOUND = 0.001;
 
 ET = cell(N, 3);
 for t = 1:N
@@ -176,7 +191,7 @@ for t = 1:N
   end
 end
 
-ALPHA = 0.2;
+
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
@@ -211,7 +226,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         iter_y = 0;
         B = zeros(M, k);
         D = zeros(M+k, 1);
-        while (deltachange > 0.001 && iter_y < 10000)
+        while (deltachange > NEWTON_CONV_BOUND && iter_y < Newton_MaxIter)
           A = invSigma;
           for i = 1 : k
             A = A + ET{t, 1}{i} * y(M + i);

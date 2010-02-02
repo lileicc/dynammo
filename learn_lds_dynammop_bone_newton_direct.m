@@ -151,37 +151,23 @@ oldLogli = -inf;
 
 ET = cell(N, 5);
 for t = 1:N
-  k = 0;
-  templist = [];
+  k = 0; 
   ET{t, 2} = [];
+  ET{t, 3} = [];  
+  ET{t, 4} = find(~observed(:, t));
+  ET{t, 5} = sum(~observed(:, t));
+  ET{t, 6} = ceil(cumsum(~observed(:, t)) / Dim);
   for i = 1:size(bone, 1)
     u = bone(i, 1);
     v = bone(i, 2);
-    if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
-      ET{t, 2} = [ET{t, 2} ];
-      
+    if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))      
+      ET{t, 2} = [ET{t, 2} [ET{t, 6}(Dim * u); ET{t, 6}(Dim * v); bone(i, 3)]];
+    end    
+    if ((u < v) && (~observed(Dim * u, t) && observed(Dim * v, t)))
+      ET{t, 3} = [ET{t, 3} [ET{t, 6}(Dim * u); v; bone(i, 3)]];
     end
-    
-%     if ((bone(i, 1) < bone(i, 2)) && (~observed(Dim * bone(i, 1), t) || ~observed(Dim * bone(i, 2), t)))
-%       k = k + 1;
-%       templist = [templist, i];
-%     end
   end
-  ET{t, 2} = k;
-  ET{t, 3} = templist;
-  if (k > 0)
-    ET{t, 1} = cell(1, k);
-    id = 1;
-    for i = templist      
-      E = zeros(M, Dim);
-      for j = 1:Dim
-        E(j + (bone(i, 1)-1) * Dim , j) = 1;
-        E(j + (bone(i, 2)-1) * Dim , j) = -1;
-      end
-      ET{t, 1}{id} = E * E';
-      id = id + 1;
-    end      
-  end
+  ET{t, 1} = size(ET{t, 2}, 2) + size(ET{t, 2}, 3);  
 end
 
 ALPHA = 0.2;
@@ -211,19 +197,21 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
     for t = 1 : N
       % for i = 1 : size(bone, 1)
       % use random optimization order
-      if (ET{t, 2} > 0) % there are active bone constraints for this time tick
+      if (ET{t, 1} > 0) % there are active bone constraints for this time tick
         invSm = invSigma(observed(:, t), observed(:, t));
-        k = ET{t, 2};
-        y = [X(:, t); zeros(k, 1)];
-        xtilde = X(:, t);
+        k = ET{t, 1};
+        y = [X(~observed(:, t), t); zeros(k, 1)];
+        xtilde = X(~observed(:, t), t);
         deltachange = 1;
         iter_y = 0;
         while (deltachange > 0.001 && iter_y < 10000)
           A = invSm;
           B = zeros(M, k);
-          D = zeros(M+k, 1);            
+          D = zeros(M+k, 1);
+          for i = 1 : size(ET{t, 2})
           for i = 1 : k
-            A = A + ET{t, 1}{i} * y(M + i);
+            %A = A + ET{t, 1}{i} * y(M + i);
+            A()
             B(:, i) = 2 * ET{t, 1}{i} * y(1:M);
             
             % compute the difference in distance

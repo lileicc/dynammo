@@ -18,6 +18,8 @@ data = [u; x; y];
 bones = [1, 2, 1; 2, 1, 1; 2, 3, 1; 3, 2, 1];
 [model, Xhat, LL] = learn_lds_dynammop_bone_newton(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
 
+save('test_simulated_bone_newton_method.mat');
+
 %% test basic learn_lds
 [model, LL] = learn_lds(data, 'Bone', bones, 'MaxIter', 1000, 'Hidden', 4, 'Observed', observed);
 [mu, V, P] = forward(data, model);
