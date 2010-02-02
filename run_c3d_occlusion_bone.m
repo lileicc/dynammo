@@ -41,19 +41,21 @@ H = 16;
 % learning the missing value using on_the_fly_and_bone_constraints
 if (isempty(find(strcmp('Newton', varargin), 1)))
   [model, Y, LL] = learn_lds_dynammop_bone(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+  filename = sprintf('%s_%s_%d-%d_multi_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);
 else
   [model, Y, LL] = learn_lds_dynammop_bone_newton(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+  filename = sprintf('%s_%s_%d-%d_random_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);
 end
 
 
 %% save the data
 % play_mocap_skel(X, lab.colheaders);
 Y_large = Y * 1000;
-save(sprintf('%s_%s_%d-%d_bone_fly.mat', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end));
-csvwrite(sprintf('%s_%s_%d-%d_bone_fly.csv', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end), Y_large);
+save(sprintf('%s.mat', filename));
+csvwrite(sprintf('%s.csv', filename), Y_large);
 
 %% play the recovered motion animation
-play_mocap_skel(Y, lab.colheaders, sprintf('%s_%s_%d-%d_bone_fly.avi', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end));
+play_mocap_skel(Y, lab.colheaders, sprintf('%s.avi', filename));
 
 %% plot signal and bone lengths
 i = missing_bone(1);
@@ -75,5 +77,5 @@ subplot(4,1,4);
 plot(dy);
 %ylim([0, mx]);
 title('bone length reconstructed');
-saveas(gcf, sprintf('%s_%s_%d-%d_bone_fly.eps', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end), 'psc2');
+saveas(gcf, sprintf('%s.eps', filename), 'psc2');
 
