@@ -1,4 +1,4 @@
-function [X, Y, model, W, bone, bone_var] = run_c3d_occlusion_bone(c3dcsv, missing_bone, missing_frame_start, missing_frame_end, varargin)
+function [X, Y, model, W, bone, bone_var, time] = run_c3d_occlusion_bone(c3dcsv, missing_bone, missing_frame_start, missing_frame_end, varargin)
 % use lds with bone constraints to learn the dynamics and recover the
 % occlusion
 % Args:
@@ -35,6 +35,7 @@ W(missing_bone, missing_frame_start:missing_frame_end) = false;
 %figure;
 %plot(X(:, 97:99));
 
+tic; 
 % setup the parameters
 H = 16;
 % maxIter = 10000;
@@ -46,7 +47,7 @@ else
   [model, Y, LL] = learn_lds_dynammop_bone_newton(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
   filename = sprintf('%s_%s_%d-%d_random_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);
 end
-
+time = toc;
 
 %% save the data
 % play_mocap_skel(X, lab.colheaders);

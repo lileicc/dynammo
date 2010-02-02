@@ -1,4 +1,4 @@
-function [X, Y, model, W, bone, bone_var] = run_c3d_occlusion(c3dcsv, missing_bone, missing_frame_start, missing_frame_end, varargin)
+function [X, Y, model, W, bone, bone_var, time] = run_c3d_occlusion(c3dcsv, missing_bone, missing_frame_start, missing_frame_end, varargin)
 % use lds with bone constraints to learn the dynamics and recover the
 % occlusion
 % Args:
@@ -35,12 +35,14 @@ W(missing_bone, missing_frame_start:missing_frame_end) = false;
 %figure;
 %plot(X(:, 97:99));
 
+tic;
 % setup the parameters
 H = 16;
 % maxIter = 10000;
 % learning the missing value using on_the_fly_and_bone_constraints
 %[model, Y, LL] = learn_lds_dynammop_bone(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
 [model, Y, LL] = learn_lds_dynammop(X, 'Hidden', H, 'Observed', W, varargin{:});
+time = toc;
 
 %% save the data
 % play_mocap_skel(X, lab.colheaders);
