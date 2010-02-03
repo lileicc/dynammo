@@ -30,7 +30,8 @@ for i = 1:k
   for j = 1:k
     bone_length_series(:, i, j) = sqrt(sum((data((i*Dim - Dim + 1) : (i*Dim), :) - data((j*Dim - Dim + 1):(j*Dim), :)).^2));
     dist(i,j) = mean(bone_length_series(:, i, j));
-    variance(i, j) = var(bone_length_series(:, i, j));
+    %variance(i, j) = var(bone_length_series(:, i, j));    
+    variance(i, j) = max(bone_length_series(:, i, j)) - min(bone_length_series(:, i, j));
   end
 end
 
