@@ -12,15 +12,16 @@ scatter(x(1, :), x(2,:));
 scatter(y(1,:), y(2,:));
 
 observed = true(3, 300);
-observed(2, 200:300) = false;
+%observed(2, 200:300) = false;
+observed(3, 200:300) = false;
 
 data = [u; x; y];
 bones = [1, 2, 1; 2, 1, 1; 2, 3, 1; 3, 2, 1];
 [model, Xhat, LL] = learn_lds_dynammop_bone_newton(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
-save('test_simulated_bone_newton_method.mat');
+save('test_simulated_solar_multi_bone.mat');
 
 [model, Xhat, LL] = learn_lds_dynammop(data, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
-save('test_simulated_fly.mat');
+save('test_simulated_solar_fly.mat');
 %% test basic learn_lds
 [model, LL] = learn_lds(data, 'Bone', bones, 'MaxIter', 1000, 'Hidden', 4, 'Observed', observed);
 [mu, V, P] = forward(data, model);
