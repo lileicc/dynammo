@@ -130,7 +130,7 @@ else
   %Dim = 3; % default
   % observed can be on bone joints or on marker coordinates
   
-  Dim = int32(M / size(observed, 1));
+  Dim = round(M / size(observed, 1));
   observed = (reshape(repmat(observed', Dim, 1), N, M))';
 end
 
@@ -158,30 +158,30 @@ for t = 1:N
   ET{t, 4} = find(~observed(:, t));
   ET{t, 5} = sum(~observed(:, t)); 
   if (ET{t, 5} > 0)
-  ET{t, 6} = ceil(cumsum(~observed(:, t)) ./ Dim); %mapped index
-  ET{t, 7} = 0; %double missing
-  ET{t, 8} = 0; %single missing single observed
-  for i = 1:size(bone, 1)
-    u = bone(i, 1);
-    v = bone(i, 2);
-    
-    if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))      
-      ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u); ET{t, 6}(Dim * v); bone(i, 3)]];
-      %ET{t, 2} is the index pair and bone length      
-      ET{t, 7} = ET{t, 7} + 1;      
-    end    
-    if ((u < v) && (~observed(Dim * u, t) && observed(Dim * v, t)))
-      ET{t, 3} = [ET{t, 3} [ET{t, 6}(Dim * u); v; bone(i, 3)]];
-      ET{t, 8} = ET{t, 8} + 1;
-    end    
-  end
-  ET{t, 7} = ET{t, 7} + ET{t, 5};
-  ET{t, 8} = ET{t, 7} + ET{t, 8};
-  ET{t, 1} = size(ET{t, 2}, 2) + size(ET{t, 2}, 3);  
+    ET{t, 6} = ceil(cumsum(~observed(:, t)) ./ Dim); %mapped index
+    ET{t, 7} = 0; %double missing
+    ET{t, 8} = 0; %single missing single observed
+    for i = 1:size(bone, 1)
+      u = bone(i, 1);
+      v = bone(i, 2);
+      
+      if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
+        ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u); ET{t, 6}(Dim * v); bone(i, 3)]];
+        %ET{t, 2} is the index pair and bone length
+        ET{t, 7} = ET{t, 7} + 1;
+      end
+      if ((u < v) && (~observed(Dim * u, t) && observed(Dim * v, t)))
+        ET{t, 3} = [ET{t, 3} [ET{t, 6}(Dim * u); v; bone(i, 3)]];
+        ET{t, 8} = ET{t, 8} + 1;
+      end
+    end
+    ET{t, 7} = ET{t, 7} + ET{t, 5};
+    ET{t, 8} = ET{t, 7} + ET{t, 8};
+    ET{t, 1} = size(ET{t, 2}, 2) + size(ET{t, 2}, 3);
   end
 end
 
-ALPHA = 0.2;
+ALPHA = 1;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
@@ -209,9 +209,10 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
       % for i = 1 : size(bone, 1)
       % use random optimization order
       if (ET{t, 1} > 0) % there are active bone constraints for this time tick
-        invSm = invSigma(~observed(:, t), ~observed(:, t));
-        k = ET{t, 1};
-        y = [X(~observed(:, t), t); zeros(k, 1)];
+        k1 = size(ET{t, 2}, 1);
+        k2 = size(ET{t, 3}, 1);
+        invSm = invSigma(~observed(:, t), ~observed(:, t));        
+        y = [X(~observed(:, t), t); zeros(k1 + k2, 1)];
         xtilde = X(~observed(:, t), t);
         deltaxg = X(:, t);
         deltaxg(~observed(:, t)) = 0;
@@ -221,12 +222,11 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         deltachange = 1;
         iter_y = 0;
         %miss = ET{t, 5};
-        k1 = size(ET{t, 2}, 1);
-        k2 = size(ET{t, 3}, 1);
+
         
         while (deltachange > 0.001 && iter_y < 10000)
           A = 2 * invSm;
-          B = zeros(M, k);
+          B = zeros(ET{t, 5}, k1 + k2);
           D = [2 * invSm * y(1:ET{t, 5}) + deltaxg; zeros(k1+k2, 1)];          
           for i = 1 : k1
           %for i = 1 : k
@@ -272,7 +272,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             % compute the difference in distance            
             D(id_lamb) = sum(delta .^ 2) - ET{t, 3}(i, 3);
           end          
-          C = [A, B; B', zeros(k, k)];
+          C = [A, B; B', zeros(k1 + k2, k1 + k2)];
           deltay = - pinv(C) * D * ALPHA;
           y = y + deltay; 
           deltachange = sum(abs(deltay));
@@ -300,13 +300,18 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   oldLogli = logli;
   fprintf('iteration = %d, logli = %d\n', iter, logli);
   if (exist('plotFun'))
-    plotFun(X);
+    plotFun(X');
     drawnow;
+    pause;
   end
 end
 model = oldmodel;
 Xhat = X;
 
 
+function [t] = isTiny(sigma)
+% test whether the matrix sigma is close to zero
+%
+t = (norm(sigma, 1) < 1e-10) || (any(diag(sigma) < 1e-10));
 
 
