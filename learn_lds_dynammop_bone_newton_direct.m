@@ -149,24 +149,31 @@ diff = 1;
 iter = 0;
 oldLogli = -inf;
 
-ET = cell(N, 5);
+ET = cell(N, 8);
 for t = 1:N
-  k = 0; 
   ET{t, 2} = [];
   ET{t, 3} = [];  
   ET{t, 4} = find(~observed(:, t));
-  ET{t, 5} = sum(~observed(:, t));
-  ET{t, 6} = ceil(cumsum(~observed(:, t)) / Dim);
+  ET{t, 5} = sum(~observed(:, t)); 
+  ET{t, 6} = ceil(cumsum(~observed(:, t)) / Dim); %mapped index
+  ET{t, 7} = 0; %double missing
+  ET{t, 8} = 0; %single missing single observed
   for i = 1:size(bone, 1)
     u = bone(i, 1);
     v = bone(i, 2);
+    
     if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))      
-      ET{t, 2} = [ET{t, 2} [ET{t, 6}(Dim * u); ET{t, 6}(Dim * v); bone(i, 3)]];
+      ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u); ET{t, 6}(Dim * v); bone(i, 3)]];
+      %ET{t, 2} is the index pair and bone length      
+      ET{t, 7} = ET{t, 7} + 1;      
     end    
     if ((u < v) && (~observed(Dim * u, t) && observed(Dim * v, t)))
       ET{t, 3} = [ET{t, 3} [ET{t, 6}(Dim * u); v; bone(i, 3)]];
-    end
+      ET{t, 8} = ET{t, 8} + 1;
+    end    
   end
+  ET{t, 7} = ET{t, 7} + ET{t, 5};
+  ET{t, 8} = ET{t, 7} + ET{t, 8};
   ET{t, 1} = size(ET{t, 2}, 2) + size(ET{t, 2}, 3);  
 end
 
@@ -198,39 +205,78 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
       % for i = 1 : size(bone, 1)
       % use random optimization order
       if (ET{t, 1} > 0) % there are active bone constraints for this time tick
-        invSm = invSigma(observed(:, t), observed(:, t));
+        invSm = invSigma(~observed(:, t), ~observed(:, t));
         k = ET{t, 1};
         y = [X(~observed(:, t), t); zeros(k, 1)];
         xtilde = X(~observed(:, t), t);
+        deltaxg = X(:, t);
+        deltaxg(~observed(:, t)) = 0;
+        deltaxg = deltaxg - model.C * Ez{t};
+        deltaxg = 2 * invSigma(~observed(:, t), :) * deltaxg;
+        
         deltachange = 1;
         iter_y = 0;
+        %miss = ET{t, 5};
+        k1 = size(ET{t, 2}, 1);
+        k2 = size(ET{t, 3}, 1);
+        
         while (deltachange > 0.001 && iter_y < 10000)
-          A = invSm;
+          A = 2 * invSm;
           B = zeros(M, k);
-          D = zeros(M+k, 1);
-          for i = 1 : size(ET{t, 2})
-          for i = 1 : k
+          D = [2 * invSm * y(1:ET{t, 5}) + deltaxg; zeros(k1+k2, 1)];          
+          for i = 1 : k1
+          %for i = 1 : k
             %A = A + ET{t, 1}{i} * y(M + i);
-            A()
-            B(:, i) = 2 * ET{t, 1}{i} * y(1:M);
+            %A() = abc;
+            u = ET{t, 2}(i, 1);
+            v = ET{t, 2}(i, 2);            
+            idu = (u * Dim - Dim + 1) : (Dim * u);
+            idv = (v * Dim - Dim + 1) : (Dim * v);
+            id_lamb = ET{t, 5} + i;
+            lambij = y(id_lamb);
+            A(idu, idu) = A(idu, idu) + lambij * 2;
+            A(idu, idv) = A(idu, idv) - lambij * 2;
+            A(idv, idu) = A(idv, idu) - lambij * 2;
+            A(idv, idv) = A(idv, idv) + lambij * 2;
             
-            % compute the difference in distance
-            u = bone(ET{t, 3}(i), 1);
-            v = bone(ET{t, 3}(i), 2);
-            dist = bone(ET{t, 3}(i), 3);
-            D(M+i) = norm(y((u*Dim - Dim + 1) : (u * Dim)) - y((v*Dim - Dim + 1) : (v * Dim))) ^ 2 - dist ^ 2;
+            deltax = (y(idu) - y(idv));
+            B(idu, i) = 2 * deltax;
+            B(idv, i) = - 2 * deltax;
+            
+            D(idu) = D(idu) + 2 * lambij * deltax;
+            D(idv) = D(idv) - 2 * lambij * deltax;
+            
+            % difference of estimated bone and expected bone
+            D(id_lamb) = sum(deltax .^ 2) - ET{t, 2}(i, 3) ^ 2;
+            
           end
-          D(1:M) = 2 * (invSigma * (y(1:M) - xtilde) + B * y((M+1) : end));
+          
+          for i = 1 : k2
+            u = ET{t, 3}(i, 1);
+            v = ET{t, 3}(i, 2);
+            idu = (u * Dim - Dim + 1) : (Dim * u);
+            idv = (v * Dim - Dim + 1) : (Dim * v);
+            id_lamb = ET{t, 5} + k1 + i;
+            lambij = y(id_lamb);
+            A(idu, idu) = A(idu, idu) + lambij * 2;
+            
+            deltax = (y(idu) - X(idv, t));                        
+            B(idu, i + k1) = 2 * deltax;
+            
+            D(idu) = D(idu) + 2 * lambij * deltax;
+                     
+            % compute the difference in distance            
+            D(id_lamb) = sum(delta .^ 2) - ET{t, 3}(i, 3);
+          end          
           C = [A, B; B', zeros(k, k)];
           deltay = - pinv(C) * D * ALPHA;
           y = y + deltay; 
           deltachange = sum(abs(deltay));
           iter_y = iter_y + 1;
-          y(observed(:, t)) = xtilde(observed(:, t));
+          %y(observed(:, t)) = xtilde(observed(:, t));
         end
-        X(~observed(:, t), t) = y(~observed(:, t)); 
-      end
-      
+        X(~observed(:, t), t) = y(1:ET{t, 5}); 
+      end      
     end
     
     [mu, V, P, logli] = forward(X, model, varargin{:});
