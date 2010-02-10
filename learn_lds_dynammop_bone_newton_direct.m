@@ -124,6 +124,7 @@ if (isempty(a))
     % try to regard the 0 as missing
     observed = (abs(X) > eps);
   end
+  Dim = 3;
 else
   observed = varargin{a+1};
   %Dim = 3; % default
@@ -151,11 +152,13 @@ oldLogli = -inf;
 
 ET = cell(N, 8);
 for t = 1:N
+  ET{t, 1} = 0;
   ET{t, 2} = [];
   ET{t, 3} = [];  
   ET{t, 4} = find(~observed(:, t));
   ET{t, 5} = sum(~observed(:, t)); 
-  ET{t, 6} = ceil(cumsum(~observed(:, t)) / Dim); %mapped index
+  if (ET{t, 5} > 0)
+  ET{t, 6} = ceil(cumsum(~observed(:, t)) ./ Dim); %mapped index
   ET{t, 7} = 0; %double missing
   ET{t, 8} = 0; %single missing single observed
   for i = 1:size(bone, 1)
@@ -175,6 +178,7 @@ for t = 1:N
   ET{t, 7} = ET{t, 7} + ET{t, 5};
   ET{t, 8} = ET{t, 7} + ET{t, 8};
   ET{t, 1} = size(ET{t, 2}, 2) + size(ET{t, 2}, 3);  
+  end
 end
 
 ALPHA = 0.2;
