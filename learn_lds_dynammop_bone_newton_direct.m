@@ -166,12 +166,12 @@ for t = 1:N
       v = bone(i, 2);
       
       if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
-        ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u); ET{t, 6}(Dim * v); bone(i, 3)]];
+        ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u), ET{t, 6}(Dim * v), bone(i, 3)]];
         %ET{t, 2} is the index pair and bone length
         ET{t, 7} = ET{t, 7} + 1;
       end
-      if ((u < v) && (~observed(Dim * u, t) && observed(Dim * v, t)))
-        ET{t, 3} = [ET{t, 3} [ET{t, 6}(Dim * u); v; bone(i, 3)]];
+      if ((~observed(Dim * u, t)) && observed(Dim * v, t))
+        ET{t, 3} = [ET{t, 3}; [ET{t, 6}(Dim * u), v, bone(i, 3)]];
         ET{t, 8} = ET{t, 8} + 1;
       end
     end
@@ -196,7 +196,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   
   % make the bone contraints
   %if (((iter > 20) && (rem(floor(iter / 4), 25) ~= 0)) || (iter > 500))
-  if (iter > 0)
+  if (iter > 10)
     % do bone length constraint
     %[u, V, P, logli] = forward(X, A, Gamma, C, Sigma, u0, V0);
     
@@ -270,7 +270,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             D(idu) = D(idu) + 2 * lambij * deltax;
                      
             % compute the difference in distance            
-            D(id_lamb) = sum(delta .^ 2) - ET{t, 3}(i, 3);
+            D(id_lamb) = sum(deltax .^ 2) - ET{t, 3}(i, 3);
           end          
           C = [A, B; B', zeros(k1 + k2, k1 + k2)];
           deltay = - pinv(C) * D * ALPHA;
@@ -302,13 +302,18 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   if (exist('plotFun'))
     plotFun(X');
     drawnow;
-    pause;
+    %pause;
+    if (~exist('templist'))
+      templist = cell(1,1);
+    end
+    [bbb, bbv, bbs] = get_bones(X, 'Dim', 2, 'Threshold', 1);
+    templist{iter} = bbs(:, 2,3);
   end
 end
 model = oldmodel;
 Xhat = X;
 
-
+save('test_simulated_solar_multi_bone_direct_during_learning.mat');
 function [t] = isTiny(sigma)
 % test whether the matrix sigma is close to zero
 %

@@ -17,7 +17,7 @@ observed(3, 200:300) = false;
 
 data = [u; x; y];
 bones = [1, 2, 1; 2, 1, 1; 2, 3, 1; 3, 2, 1];
-[model, Xhat, LL] = learn_lds_dynammop_bone_newton_direct(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
+[model, Xhat, LL] = learn_lds_dynammop_bone_newton_direct(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed, 'PlotFun', @plot);
 save('test_simulated_solar_multi_bone_direct.mat');
 
 [model, Xhat, LL] = learn_lds_dynammop_bone_newton(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
