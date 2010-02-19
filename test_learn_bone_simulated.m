@@ -1,3 +1,4 @@
+clear;
 t = 1 : 300;
 f1 = 1 / 100;
 u = [t / 150 - 1; t / 150 - 1];
@@ -14,20 +15,47 @@ scatter(y(1,:), y(2,:));
 observed = true(3, 300);
 %observed(2, 200:300) = false;
 observed(3, 200:300) = false;
+observed(3, 200:290) = false;
 
 data = [u; x; y];
 bones = [1, 2, 1; 2, 1, 1; 2, 3, 1; 3, 2, 1];
-[model, Xhat, LL] = learn_lds_dynammop_bone_newton_direct(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed, 'PlotFun', @plot);
-save('test_simulated_solar_multi_bone_direct.mat');
+[model_direct, Xhat_newton_direct, LL] = learn_lds_dynammop_bone_newton_direct(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed, 'PlotFun', @(x)plot(x'));
+%save('test_simulated_solar_multi_bone_direct.mat');
 
-[model, Xhat, LL] = learn_lds_dynammop_bone_newton(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
-save('test_simulated_solar_multi_bone.mat');
+[model_multi, Xhat_multi_bone, LL] = learn_lds_dynammop_bone_newton(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed, 'PlotFun', @(x)plot(x'));
+%save('test_simulated_solar_multi_bone.mat');
 
-[model, Xhat, LL] = learn_lds_dynammop(data, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed);
-save('test_simulated_solar_fly.mat');
+[model_dynammop, Xhat_dynammop, LL] = learn_lds_dynammop(data, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed, 'PlotFun', @plot);
+%save('test_simulated_solar_fly.mat');
+
+[model_dynammo, Xhat_dynammo, LL] = learn_lds_dynammo(data, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed, 'PlotFun', @plot);
+save('test_simulated_solar_5-6_missing200-300.mat');
+
 %% test basic learn_lds
 [model, LL] = learn_lds(data, 'Bone', bones, 'MaxIter', 1000, 'Hidden', 4, 'Observed', observed);
 [mu, V, P] = forward(data, model);
 [Ez, Ezz, Ez1z] = backward(mu, V, P, model);
 plot((model.C * cell2mat(Ez))' - data');
+
+
+%% plot
+%%
+Xhat = Xhat_newton_direct;
+
+plot(Xhat(5:6, :)');
+x1 = 199.5;
+x2 = 300;
+y1 = min(ylim);
+y2 = -1;
+lv = [x1, y1; x1, y2];
+lv2 = [x2, y1; x2, y2];
+xlabel('frame');
+%ylabel('bone length (m)'); 
+legend('show');
+[lx, ly] = dsxy2figxy(gca, lv(:, 1), lv(:, 2));
+annotation('line', lx, ly);
+[lx, ly] = dsxy2figxy(gca, lv2(:, 1), lv2(:, 2));
+annotation('line', lx, ly);
+
+
 

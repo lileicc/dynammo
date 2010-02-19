@@ -113,7 +113,13 @@ if (isempty(a))
   end
 else
   observed = varargin{a+1};
+  %Dim = 3; % default
+  % observed can be on bone joints or on marker coordinates
+  
+  Dim = int32(M / size(observed, 1));
+  observed = (reshape(repmat(observed', Dim, 1), N, M))';
 end
+
 
 % get plot function 
 a = find(strcmp('PlotFun', varargin), 1);
@@ -163,7 +169,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
     fprintf('iteration = %d\n', iter);
   end
   if (exist('plotFun'))
-    plotFun(X);
+    plotFun(X');
     drawnow;
   end
 end

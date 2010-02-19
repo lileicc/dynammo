@@ -181,7 +181,7 @@ for t = 1:N
   end
 end
 
-ALPHA = 1;
+ALPHA = 0.5;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
@@ -224,7 +224,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         %miss = ET{t, 5};
 
         
-        while (deltachange > 0.001 && iter_y < 10000)
+        while (deltachange > 0.0001 && iter_y < 100)
           A = 2 * invSm;
           B = zeros(ET{t, 5}, k1 + k2);
           D = [2 * invSm * y(1:ET{t, 5}) + deltaxg; zeros(k1+k2, 1)];          
@@ -300,14 +300,14 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   oldLogli = logli;
   fprintf('iteration = %d, logli = %d\n', iter, logli);
   if (exist('plotFun'))
-    plotFun(X');
+    plotFun(X);
     drawnow;
     %pause;
     if (~exist('templist'))
       templist = cell(1,1);
     end
-    [bbb, bbv, bbs] = get_bones(X, 'Dim', 2, 'Threshold', 1);
-    templist{iter} = bbs(:, 2,3);
+%     [bbb, bbv, bbs] = get_bones(X, 'Dim', 2, 'Threshold', 1);
+%     templist{iter} = bbs(:, 2,3);
   end
 end
 model = oldmodel;
