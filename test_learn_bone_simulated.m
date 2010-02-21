@@ -14,7 +14,7 @@ scatter(y(1,:), y(2,:));
 
 observed = true(3, 300);
 %observed(2, 200:300) = false;
-observed(3, 200:300) = false;
+%observed(3, 200:300) = false;
 observed(3, 200:290) = false;
 
 data = [u; x; y];
@@ -40,8 +40,9 @@ plot((model.C * cell2mat(Ez))' - data');
 
 %% plot
 %%
-Xhat = Xhat_newton_direct;
-
+Xhat = Xhat_dynammop;
+Xhat = data;
+figure;
 plot(Xhat(5:6, :)');
 x1 = 199.5;
 x2 = 300;
@@ -59,3 +60,20 @@ annotation('line', lx, ly);
 
 
 
+[bbb, bbv, bbs] = get_bones(Xhat, 'Dim', 2, 'Threshold', 1);
+figure;
+plot(bbs(:, 2, 3));
+ylim([0, 1.2]);
+x1 = 199.5;
+x2 = 300;
+y1 = min(ylim);
+y2 = 0.5;
+lv = [x1, y1; x1, y2];
+lv2 = [x2, y1; x2, y2];
+xlabel('frame');
+ylabel('bone length (m)'); 
+legend('show');
+[lx, ly] = dsxy2figxy(gca, lv(:, 1), lv(:, 2));
+annotation('line', lx, ly);
+[lx, ly] = dsxy2figxy(gca, lv2(:, 1), lv2(:, 2));
+annotation('line', lx, ly);
