@@ -129,7 +129,6 @@ else
   observed = varargin{a+1};
   %Dim = 3; % default
   % observed can be on bone joints or on marker coordinates
-  
   Dim = round(M / size(observed, 1));
   observed = (reshape(repmat(observed', Dim, 1), N, M))';
 end
@@ -185,8 +184,9 @@ ALPHA = 0.5;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
-  if (iter > 1)
-    [mu, V, P, X, logli] = forward_fly(X, model, observed, varargin{:});
+  if (iter > 10)
+    %[mu, V, P, X, logli] = forward_fly(X, model, observed, varargin{:});
+    [mu, V, P, logli] = forward(X, model, varargin{:});
   else
     [mu, V, P, logli] = forward(X, model, varargin{:});
   end
@@ -238,10 +238,10 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             idv = (v * Dim - Dim + 1) : (Dim * v);
             id_lamb = ET{t, 5} + i;
             lambij = y(id_lamb);
-            A(idu, idu) = A(idu, idu) + lambij * 2;
-            A(idu, idv) = A(idu, idv) - lambij * 2;
-            A(idv, idu) = A(idv, idu) - lambij * 2;
-            A(idv, idv) = A(idv, idv) + lambij * 2;
+            A(idu, idu) = A(idu, idu) + eye(Dim) * lambij * 2;
+            A(idu, idv) = A(idu, idv) - eye(Dim) * lambij * 2;
+            A(idv, idu) = A(idv, idu) - eye(Dim) * lambij * 2;
+            A(idv, idv) = A(idv, idv) + eye(Dim) * lambij * 2;
             
             deltax = (y(idu) - y(idv));
             B(idu, i) = 2 * deltax;
@@ -261,8 +261,8 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             idu = (u * Dim - Dim + 1) : (Dim * u);
             idv = (v * Dim - Dim + 1) : (Dim * v);
             id_lamb = ET{t, 5} + k1 + i;
-            lambij = y(id_lamb);
-            A(idu, idu) = A(idu, idu) + lambij * 2;
+            lambij = y(id_lamb);            
+            A(idu, idu) = A(idu, idu) + eye(Dim) * lambij * 2;
             
             deltax = (y(idu) - X(idv, t));                        
             B(idu, i + k1) = 2 * deltax;
@@ -274,7 +274,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
           end          
           C = [A, B; B', zeros(k1 + k2, k1 + k2)];
           deltay = - pinv(C) * D * ALPHA;
-          y = y + deltay; 
+          y = y + deltay;
           deltachange = sum(abs(deltay));
           iter_y = iter_y + 1;
           %y(observed(:, t)) = xtilde(observed(:, t));
@@ -300,14 +300,17 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   oldLogli = logli;
   fprintf('iteration = %d, logli = %d\n', iter, logli);
   if (exist('plotFun'))
-    plotFun(X);
-    drawnow;
-    %pause;
     if (~exist('templist'))
       templist = cell(1,1);
     end
-%     [bbb, bbv, bbs] = get_bones(X, 'Dim', 2, 'Threshold', 1);
-%     templist{iter} = bbs(:, 2,3);
+    [bbb, bbv, bbs] = get_bones(X, 'Dim', 2, 'Threshold', 1);
+    templist{iter} = bbs(:, 2, 3);
+    subplot(2, 1, 1);   
+    plotFun(X);
+    subplot(2, 1, 2);
+    plot(bbs(:, 2, 3));
+    drawnow;
+    %pause;    
   end
 end
 model = oldmodel;
