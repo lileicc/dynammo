@@ -13,12 +13,13 @@ scatter(x(1, :), x(2,:));
 scatter(y(1,:), y(2,:));
 
 observed = true(3, 300);
-%observed(2, 200:300) = false;
+observed(2, 200:300) = false;
 %observed(3, 200:300) = false;
-observed(3, 200:290) = false;
+%observed(3, 200:290) = false;
 
 data = [u; x; y];
 bones = [1, 2, 1; 2, 1, 1; 2, 3, 1; 3, 2, 1];
+%bones = [1, 2, 0.8; 2, 1, 0.8; 2, 3, 0.5; 3, 2, 0.5];
 [model_direct, Xhat_newton_direct, LL] = learn_lds_dynammop_bone_newton_direct(data, 'Bone', bones, 'MaxIter', 100, 'Hidden', 4, 'Observed', observed, 'PlotFun', @(x)plot(x'));
 %save('test_simulated_solar_multi_bone_direct.mat');
 
@@ -59,7 +60,7 @@ annotation('line', lx, ly);
 annotation('line', lx, ly);
 
 
-
+Xhat = Xhat_newton_direct;
 [bbb, bbv, bbs] = get_bones(Xhat, 'Dim', 2, 'Threshold', 1);
 figure;
 plot(bbs(:, 2, 3));

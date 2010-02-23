@@ -165,12 +165,12 @@ for t = 1:N
       v = bone(i, 2);
       
       if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
-        ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u), ET{t, 6}(Dim * v), bone(i, 3)]];
+        ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u), ET{t, 6}(Dim * v), bone(i, 3) ^ 2]];
         %ET{t, 2} is the index pair and bone length
         ET{t, 7} = ET{t, 7} + 1;
       end
       if ((~observed(Dim * u, t)) && observed(Dim * v, t))
-        ET{t, 3} = [ET{t, 3}; [ET{t, 6}(Dim * u), v, bone(i, 3)]];
+        ET{t, 3} = [ET{t, 3}; [ET{t, 6}(Dim * u), v, bone(i, 3) ^ 2]];
         ET{t, 8} = ET{t, 8} + 1;
       end
     end
@@ -251,7 +251,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             D(idv) = D(idv) - 2 * lambij * deltax;
             
             % difference of estimated bone and expected bone
-            D(id_lamb) = sum(deltax .^ 2) - ET{t, 2}(i, 3) ^ 2;
+            D(id_lamb) = sum(deltax .^ 2) - ET{t, 2}(i, 3);
             
           end
           

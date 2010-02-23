@@ -17,6 +17,7 @@ run_c3d_occlusion('data/c3d/132_43.csv', [25, 28], 100, 500, 'MaxIter', 500, 'Fa
 
 
 %% occlude all right hand markers
+run_c3d_occlusion_bone('data/c3d/132_43.csv', [25, 28, 38, 39, 27], 100, 500, 'MaxIter', 500, 'Fast', 'NewtonDirect');
 run_c3d_occlusion_bone('data/c3d/132_43.csv', [25, 28, 38, 39, 27], 100, 500, 'MaxIter', 500, 'Fast', 'NewtonDirect', 'Threshold', 0.04);
 run_c3d_occlusion_bone('data/c3d/132_43.csv', [25, 28, 38, 39, 27], 100, 500, 'MaxIter', 500, 'Fast', 'Newton', 'Threshold', 0.04);
 run_c3d_occlusion_bone('data/c3d/132_43.csv', [25, 28, 38, 39, 27], 100, 500, 'MaxIter', 500, 'Fast', 'Threshold', 0.04);
