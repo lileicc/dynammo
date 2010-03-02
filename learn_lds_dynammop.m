@@ -175,7 +175,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
     fprintf('iteration = %d\n', iter);
   end
   if (exist('plotFun'))
-    plotFun(X');
+    plotFun(X);
     drawnow;
   end
 end
