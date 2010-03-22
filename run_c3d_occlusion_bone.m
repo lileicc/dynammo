@@ -1,4 +1,4 @@
-function [X, Y, model, W, bone, bone_var, time] = run_c3d_occlusion_bone(c3dcsv, missing_bone, missing_frame_start, missing_frame_end, varargin)
+function [X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(c3dcsv, missing_bone, missing_frame_start, missing_frame_end, varargin)
 % use lds with bone constraints to learn the dynamics and recover the
 % occlusion
 % Args:
@@ -30,6 +30,7 @@ N = size(X, 2);
 M = size(X, 1);
 [bone, bone_var] = get_bones(X, varargin{:});
 fprintf('estimated %d bones\n', size(bone, 1));
+
 W = true(M/3, N);
 W(missing_bone, missing_frame_start:missing_frame_end) = false;
 %figure;
@@ -41,13 +42,13 @@ H = 16;
 % maxIter = 10000;
 % learning the missing value using on_the_fly_and_bone_constraints
 if (~isempty(find(strcmp('Newton', varargin), 1)))
-  [model, Y, LL] = learn_lds_dynammop_bone_newton(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
-  filename = sprintf('%s_%s_%d-%d_multi_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);  
+  [model, Y, LL, mse] = learn_lds_dynammop_bone_newton(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+  filename = sprintf('%s_%s_%d-%d_multi_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);
 elseif  (~isempty(find(strcmp('NewtonDirect', varargin), 1)))
-  [model, Y, LL] = learn_lds_dynammop_bone_newton_direct(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+  [model, Y, LL, mse] = learn_lds_dynammop_bone_newton_direct(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
   filename = sprintf('%s_%s_%d-%d_multi_bone_fly_direct', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);  
 else
-  [model, Y, LL] = learn_lds_dynammop_bone(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+  [model, Y, LL, mse] = learn_lds_dynammop_bone(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
   filename = sprintf('%s_%s_%d-%d_random_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);
 end
 time = toc;

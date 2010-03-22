@@ -1,4 +1,4 @@
-function [model, Xhat, LL] = learn_lds_dynammop_bone_newton(X, varargin)
+function [model, Xhat, LL, mse] = learn_lds_dynammop_bone_newton(X, varargin)
 % learning model parameters for Linear Dynamical Systems (LDS), also known
 % as Kalman Filters. 
 % Recover missing values using DynaMMo+ algorithm. 
@@ -275,6 +275,12 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
 end
 model = oldmodel;
 Xhat = X;
+totalMissing = sum(sum(~observed));
+if (totalMissing > 0)
+  mse = norm((Xhat(~observed) - X(~observed)), 'fro') ./ totalMissing;
+else
+  mse = 0;
+end
 
 function [t] = isTiny(sigma)
 % test whether the matrix sigma is close to zero

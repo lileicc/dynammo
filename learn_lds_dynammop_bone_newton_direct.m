@@ -1,4 +1,4 @@
-function [model, Xhat, LL] = learn_lds_dynammop_bone_newton(X, varargin)
+function [model, Xhat, LL, mse] = learn_lds_dynammop_bone_newton(X, varargin)
 % learning model parameters for Linear Dynamical Systems (LDS), also known
 % as Kalman Filters. 
 % Recover missing values using DynaMMo+ algorithm. 
@@ -300,21 +300,28 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   oldLogli = logli;
   fprintf('iteration = %d, logli = %d\n', iter, logli);
   if (exist('plotFun'))
-    if (~exist('templist'))
-      templist = cell(1,1);
-    end
-    [bbb, bbv, bbs] = get_bones(X, 'Dim', 2, 'Threshold', 1);
-    templist{iter} = bbs(:, 2, 3);
-    subplot(2, 1, 1);   
+%    if (~exist('templist'))
+%      templist = cell(1,1);
+%    end
+%    [bbb, bbv, bbs] = get_bones(X, 'Dim', 2, 'Threshold', 1);
+%    templist{iter} = bbs(:, 2, 3);
+%    subplot(2, 1, 1);   
     plotFun(X);
-    subplot(2, 1, 2);
-    plot(bbs(:, 2, 3));
+%    subplot(2, 1, 2);
+%    plot(bbs(:, 2, 3));
     drawnow;
     %pause;    
   end
 end
 model = oldmodel;
 Xhat = X;
+totalMissing = sum(sum(~observed));
+if (totalMissing > 0)
+  mse = norm((Xhat(~observed) - X(~observed)), 'fro') ./ totalMissing;
+else
+  mse = 0;
+end
+
 
 save('test_simulated_solar_multi_bone_direct_during_learning.mat');
 function [t] = isTiny(sigma)
