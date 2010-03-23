@@ -33,21 +33,23 @@ for fileid = 1:length(filelist)
     % using DynaMMo
     [X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast');
     stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
+    save(sprintf('temp_result_occlusion_comparison_%d.mat', fileid));
     
     % using Newton direct method
     [X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast', 'NewtonDirect');
     stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
+    save(sprintf('temp_result_occlusion_comparison_%d.mat', fileid));
     
     % using Newton method
-    [X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast', 'Newton');
-    stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
+    %[X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast', 'Newton');
+    %stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
     
     % plain bone constraints
-    [X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast');
-    stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
+    %[X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast');
+    %stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
     
-    tempResult = cell2mat(stat);
-    csvwrite(sprintf('temp_result_occlusion_comparison_%d.csv', fileid), tempResult);
+    %tempResult = cell2mat(stat);
+    %csvwrite(sprintf('temp_result_occlusion_comparison_%d.csv', fileid), tempResult);
     close all;
   end
   stats{fileid} = stat;
