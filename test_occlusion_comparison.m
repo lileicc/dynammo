@@ -47,7 +47,7 @@ for fileid = 1:length(filelist)
     stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
     
     tempResult = cell2mat(stat);
-    csvwrite(sprintf('temp_redult_occlusion_comparison_%d.csv', fileid), tempResult);
+    csvwrite(sprintf('temp_result_occlusion_comparison_%d.csv', fileid), tempResult);
     close all;
   end
   stats{fileid} = stat;
