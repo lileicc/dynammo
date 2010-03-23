@@ -55,3 +55,13 @@ for i = 1:m;
   subplot(m, 1, i); 
   plot(X(:, tt(i))); 
 end
+
+%% for baseline: PCA + kmean
+[coeff, score] = princomp(X);
+figure;
+hold all;
+scatter(score(trueclass==2, 1), score(trueclass==2, 2), 'bo');
+scatter(score(trueclass==3, 1), score(trueclass==3, 2), 'r*');
+axis equal;
+xlabel('PC1');
+ylabel('PC2');
