@@ -48,6 +48,7 @@ for fileid = 1:length(filelist)
     
     tempResult = cell2mat(stat);
     csvwrite(sprintf('temp_redult_occlusion_comparison_%d.csv', fileid), tempResult);
+    close all;
   end
   stats{fileid} = stat;
   
