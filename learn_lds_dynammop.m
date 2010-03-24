@@ -183,7 +183,7 @@ model = oldmodel;
 Xhat = X;
 totalMissing = sum(sum(~observed));
 if (totalMissing > 0)
-  mse = norm((Xhat(~observed) - X(~observed)), 'fro') ./ totalMissing;
+  mse = sum((Xhat(~observed) - X(~observed)).^2) ./ totalMissing;
 else
   mse = 0;
 end
