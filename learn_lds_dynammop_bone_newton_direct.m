@@ -1,4 +1,4 @@
-function [model, Xhat, LL, mse] = learn_lds_dynammop_bone_newton(X, varargin)
+function [model, Xhat, LL, mse] = learn_lds_dynammop_bone_newton_direct(X, varargin)
 % learning model parameters for Linear Dynamical Systems (LDS), also known
 % as Kalman Filters. 
 % Recover missing values using DynaMMo+ algorithm. 
