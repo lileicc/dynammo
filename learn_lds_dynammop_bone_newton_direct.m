@@ -317,7 +317,7 @@ model = oldmodel;
 Xhat = X;
 totalMissing = sum(sum(~observed));
 if (totalMissing > 0)
-  mse = sum((Xhat(~observed) - X(~observed)).^2) ./ totalMissing;
+  mse = sum((Xhat(~observed) - X_original(~observed)).^2) ./ totalMissing;
 else
   mse = 0;
 end
