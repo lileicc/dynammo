@@ -1,11 +1,8 @@
 function [model, Xhat, LL, mse] = learn_lds_dynammop_soft_bone(X, varargin)
 % learning model parameters for Linear Dynamical Systems (LDS), also known
-% as Kalman Filters. 
-% Recover missing values using DynaMMo+ algorithm. 
-% an improved version of the algorithm in 
-% Lei Li, Jim McCann, Nancy Pollard, Christos Faloutsos. DynaMMo: Mining 
-% and Summarization of Coevolving Sequences with Missing Values. 
-% KDD '09, Paris, France.
+% as Kalman Filters. with soft bone constraints
+% 
+% using dynammo+ and gradient descent
 %
 % Linear Dynamical Systems are described by the following equations:
 % z_1 = mu0 + w_1function [model, Xhat, LL] = learn_lds_dynammop_bone_newton(X, varargin)
@@ -139,6 +136,8 @@ if (~isempty(a))
   plotFun = varargin{a+1};
 end
 
+num_bone = round(M / Dim);
+
 % use linear interpolation as an initialization
 Y = linear_interp(X, observed);
 X(~observed) = Y(~observed);
@@ -148,8 +147,11 @@ ratio = 1;
 diff = 1;
 iter = 0;
 oldLogli = -inf;
+Lambda = 1;
+
 
 ET = cell(N, 8);
+mark = false(num_bone, num_bone);
 for t = 1:N
   ET{t, 1} = 0;
   ET{t, 2} = [];
@@ -162,17 +164,25 @@ for t = 1:N
     ET{t, 8} = 0; %single missing single observed
     for i = 1:size(bone, 1)
       u = bone(i, 1);
-      v = bone(i, 2);
-      
-      if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
+      v = bone(i, 2);     
+      if (~mark(u,v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
         ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u), ET{t, 6}(Dim * v), bone(i, 3) ^ 2]];
         %ET{t, 2} is the index pair and bone length
         ET{t, 7} = ET{t, 7} + 1;
+        mark(u, v) = true;
+        mark(v, u) = true;
       end
-      if ((~observed(Dim * u, t)) && observed(Dim * v, t))
+      if ((observed(Dim * u, t)) && ~observed(Dim * v, t))
+        tmp = u;
+        u = v;
+        v = tmp;
+      end
+      if (~mark(u,v) && (~observed(Dim * u, t)) && observed(Dim * v, t))
         ET{t, 3} = [ET{t, 3}; [ET{t, 6}(Dim * u), v, bone(i, 3) ^ 2]];
         ET{t, 8} = ET{t, 8} + 1;
-      end
+        mark(u, v) = true;
+        mark(v, u) = true;
+      end      
     end
     ET{t, 7} = ET{t, 7} + ET{t, 5};
     ET{t, 8} = ET{t, 7} + ET{t, 8};
@@ -210,83 +220,44 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
       % use random optimization order
       if (ET{t, 1} > 0) % there are active bone constraints for this time tick
         k1 = size(ET{t, 2}, 1);
-        k2 = size(ET{t, 3}, 1);
-        invSm = invSigma(~observed(:, t), ~observed(:, t));        
-        y = [X(~observed(:, t), t); zeros(k1 + k2, 1)];
-        xtilde = X(~observed(:, t), t);
-        deltaxg = X(:, t);
-        deltaxg(~observed(:, t)) = 0;
-        deltaxg = deltaxg - model.C * Ez{t};
-        deltaxg = 2 * invSigma(~observed(:, t), :) * deltaxg;
-        
+        k2 = size(ET{t, 3}, 1);        
+        y = X(~observed(:, t), t);
+        xht = model.C * Ez{t};        
         deltachange = 1;
-        iter_y = 0;
-        %miss = ET{t, 5};
-
-        
         while (deltachange > 0.0001 && iter_y < 100)
-          A = 2 * invSm;
-          B = zeros(ET{t, 5}, k1 + k2);
-          D = [2 * invSm * y(1:ET{t, 5}) + deltaxg; zeros(k1+k2, 1)];          
-          for i = 1 : k1
-          %for i = 1 : k
-            %A = A + ET{t, 1}{i} * y(M + i);
-            %A() = abc;
+          deltax = 2 * invSigma(~observed(:, t), :) * (y  - xht);          
+          dely = deltax;          
+          for i = 1 : k1 % constraints on double missing
             u = ET{t, 2}(i, 1);
             v = ET{t, 2}(i, 2);            
             idu = (u * Dim - Dim + 1) : (Dim * u);
-            idv = (v * Dim - Dim + 1) : (Dim * v);
-            id_lamb = ET{t, 5} + i;
-            lambij = y(id_lamb);
-            A(idu, idu) = A(idu, idu) + eye(Dim) * lambij * 2;
-            A(idu, idv) = A(idu, idv) - eye(Dim) * lambij * 2;
-            A(idv, idu) = A(idv, idu) - eye(Dim) * lambij * 2;
-            A(idv, idv) = A(idv, idv) + eye(Dim) * lambij * 2;
-            
-            deltax = (y(idu) - y(idv));
-            B(idu, i) = 2 * deltax;
-            B(idv, i) = - 2 * deltax;
-            
-            D(idu) = D(idu) + 2 * lambij * deltax;
-            D(idv) = D(idv) - 2 * lambij * deltax;
-            
-            % difference of estimated bone and expected bone
-            D(id_lamb) = sum(deltax .^ 2) - ET{t, 2}(i, 3);
-            
+            idv = (v * Dim - Dim + 1) : (Dim * v);            
+            differ = y(idu) - y(idv);
+            dd = sum(differ.^2) - ET{t, 2}(i, 3);
+            dely(idu) = dely(idu) + 4 * Lambda * dd * differ;
+            dely(idv) = dely(idv) + 4 * Lambda * dd * (-differ);
           end
           
-          for i = 1 : k2
+          for i = 1 : k2 % constraints on single missing
             u = ET{t, 3}(i, 1);
             v = ET{t, 3}(i, 2);
             idu = (u * Dim - Dim + 1) : (Dim * u);
             idv = (v * Dim - Dim + 1) : (Dim * v);
-            id_lamb = ET{t, 5} + k1 + i;
-            lambij = y(id_lamb);            
-            A(idu, idu) = A(idu, idu) + eye(Dim) * lambij * 2;
             
-            deltax = (y(idu) - X(idv, t));                        
-            B(idu, i + k1) = 2 * deltax;
-            
-            D(idu) = D(idu) + 2 * lambij * deltax;
-                     
-            % compute the difference in distance            
-            D(id_lamb) = sum(deltax .^ 2) - ET{t, 3}(i, 3);
-          end          
-          C = [A, B; B', zeros(k1 + k2, k1 + k2)];
-          deltay = - pinv(C) * D * ALPHA;
-          y = y + deltay;
-          deltachange = sum(abs(deltay));
-          iter_y = iter_y + 1;
-          %y(observed(:, t)) = xtilde(observed(:, t));
+            differ = y(idu) - X(idv, t);
+            dd = sum(differ.^2) - ET{t, 3}(i, 3);
+            dely(idu) = dely(idu) + 4 * Lambda * dd * differ;
+          end
+          y = y - ALPHA * dely;
+          deltachange = sum(abs(dely));
         end
-        X(~observed(:, t), t) = y(1:ET{t, 5}); 
       end      
     end
     
-    [mu, V, P, logli] = forward(X, model, varargin{:});
+    %[mu, V, P, logli] = forward(X, model, varargin{:});
     
     %ucap is the estimated E[z_n]
-    [Ez, Ezz, Ez1z] = backward(mu, V, P, model);  
+    %[Ez, Ezz, Ez1z] = backward(mu, V, P, model);  
   end
 
   model = MLE_lds(X, Ez, Ezz, Ez1z, varargin{:});  
