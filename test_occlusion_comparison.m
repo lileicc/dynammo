@@ -40,6 +40,10 @@ for fileid = 1:length(filelist)
     stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
     save(sprintf('temp_result_occlusion_comparison_%d.mat', fileid));
     
+    [X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast', 'SoftBone');
+    stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];
+    save(sprintf('temp_result_occlusion_comparison_%d.mat', fileid));
+    
     % using Newton method
     %[X, Y, model, W, bone, bone_var, time, mse] = run_c3d_occlusion_bone(filename, missing_bone, missing_frame_start, missing_frame_end, 'MaxIter', 200, 'Fast', 'Newton');
     %stat{rid} = [stat{rid}; time, mse, missing_frame_start, missing_frame_end, missing_bone];

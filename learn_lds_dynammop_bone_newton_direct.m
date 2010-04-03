@@ -139,6 +139,8 @@ if (~isempty(a))
   plotFun = varargin{a+1};
 end
 
+num_bone = round(M / Dim);
+
 % use linear interpolation as an initialization
 Y = linear_interp(X, observed);
 X(~observed) = Y(~observed);
@@ -149,8 +151,10 @@ diff = 1;
 iter = 0;
 oldLogli = -inf;
 
+
 ET = cell(N, 8);
 for t = 1:N
+  mark = false(num_bone, num_bone);
   ET{t, 1} = 0;
   ET{t, 2} = [];
   ET{t, 3} = [];  
@@ -158,27 +162,37 @@ for t = 1:N
   ET{t, 5} = sum(~observed(:, t)); 
   if (ET{t, 5} > 0)
     ET{t, 6} = ceil(cumsum(~observed(:, t)) ./ Dim); %mapped index
+    ET{t, 6}(observed(:, t)) = 0;
     ET{t, 7} = 0; %double missing
     ET{t, 8} = 0; %single missing single observed
     for i = 1:size(bone, 1)
       u = bone(i, 1);
-      v = bone(i, 2);
-      
-      if ((u < v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
+      v = bone(i, 2);     
+      if (~mark(u,v) && (~observed(Dim * u, t) && ~observed(Dim * v, t)))
         ET{t, 2} = [ET{t, 2}; [ET{t, 6}(Dim * u), ET{t, 6}(Dim * v), bone(i, 3) ^ 2]];
         %ET{t, 2} is the index pair and bone length
         ET{t, 7} = ET{t, 7} + 1;
+        mark(u, v) = true;
+        mark(v, u) = true;
       end
-      if ((~observed(Dim * u, t)) && observed(Dim * v, t))
+      if ((observed(Dim * u, t)) && ~observed(Dim * v, t))
+        tmp = u;
+        u = v;
+        v = tmp;
+      end
+      if (~mark(u,v) && (~observed(Dim * u, t)) && observed(Dim * v, t))
         ET{t, 3} = [ET{t, 3}; [ET{t, 6}(Dim * u), v, bone(i, 3) ^ 2]];
         ET{t, 8} = ET{t, 8} + 1;
-      end
+        mark(u, v) = true;
+        mark(v, u) = true;
+      end      
     end
     ET{t, 7} = ET{t, 7} + ET{t, 5};
     ET{t, 8} = ET{t, 7} + ET{t, 8};
     ET{t, 1} = size(ET{t, 2}, 2) + size(ET{t, 2}, 3);
   end
 end
+
 
 ALPHA = 0.5;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
@@ -323,7 +337,7 @@ else
 end
 
 
-save('test_simulated_solar_multi_bone_direct_during_learning.mat');
+%save('test_simulated_solar_multi_bone_direct_during_learning.mat');
 function [t] = isTiny(sigma)
 % test whether the matrix sigma is close to zero
 %

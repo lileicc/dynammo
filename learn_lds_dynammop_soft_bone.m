@@ -43,7 +43,7 @@ function [model, Xhat, LL, mse] = learn_lds_dynammop_soft_bone(X, varargin)
 %  Note these options could not coexist for the same covariance matrix.
 %  Default (no args given) the algorithm will learn with H=M, MaxIter=10,
 %  diagonal Q0, Q, R.
-%   'Plotfun', followed by a function handle (should take in X), for plotting purpose.
+%   'PlotFun', followed by a function handle (should take in X), for plotting purpose.
 %
 % Returns:
 %   model: a struct with the following attributes:
@@ -147,12 +147,12 @@ ratio = 1;
 diff = 1;
 iter = 0;
 oldLogli = -inf;
-Lambda = 1;
+Lambda = 100;
 
 
 ET = cell(N, 8);
-mark = false(num_bone, num_bone);
 for t = 1:N
+  mark = false(num_bone, num_bone);
   ET{t, 1} = 0;
   ET{t, 2} = [];
   ET{t, 3} = [];  
@@ -160,6 +160,7 @@ for t = 1:N
   ET{t, 5} = sum(~observed(:, t)); 
   if (ET{t, 5} > 0)
     ET{t, 6} = ceil(cumsum(~observed(:, t)) ./ Dim); %mapped index
+    ET{t, 6}(observed(:, t)) = 0;
     ET{t, 7} = 0; %double missing
     ET{t, 8} = 0; %single missing single observed
     for i = 1:size(bone, 1)
@@ -190,23 +191,24 @@ for t = 1:N
   end
 end
 
-ALPHA = 0.5;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
   if (iter > 10)
     %[mu, V, P, X, logli] = forward_fly(X, model, observed, varargin{:});
     [mu, V, P, logli] = forward(X, model, varargin{:});
+    [Ez, Ezz, Ez1z] = backward(mu, V, P, model);
+    Y = estimate_missing(X, Ez, model, observed);
+    X(~observed) = Y(~observed);
   else
     [mu, V, P, logli] = forward(X, model, varargin{:});
+    [Ez, Ezz, Ez1z] = backward(mu, V, P, model);
   end
-  [Ez, Ezz, Ez1z] = backward(mu, V, P, model);  
-  Y = estimate_missing(X, Ez, model, observed);
-  X(~observed) = Y(~observed);
+
   
   % make the bone contraints
   %if (((iter > 20) && (rem(floor(iter / 4), 25) ~= 0)) || (iter > 500))
-  if (iter > 10)
+  if (iter > 1)
     % do bone length constraint
     %[u, V, P, logli] = forward(X, A, Gamma, C, Sigma, u0, V0);
     
@@ -221,12 +223,17 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
       if (ET{t, 1} > 0) % there are active bone constraints for this time tick
         k1 = size(ET{t, 2}, 1);
         k2 = size(ET{t, 3}, 1);        
-        y = X(~observed(:, t), t);
         xht = model.C * Ez{t};        
-        deltachange = 1;
-        while (deltachange > 0.0001 && iter_y < 100)
-          deltax = 2 * invSigma(~observed(:, t), :) * (y  - xht);          
-          dely = deltax;          
+        y = xht(~observed(:, t));
+        iter_y = 1;
+        deltax = (X(:, t)  - xht);
+        alpha = 1;
+        oldf = +Inf;
+        oldy = y;
+        while (alpha > eps * 10 && iter_y < 100)
+          deltax(~observed(:, t)) = y - xht(~observed(:, t));
+          dely = 2 * invSigma(~observed(:, t), :) * deltax;
+          f = deltax' * invSigma * deltax;
           for i = 1 : k1 % constraints on double missing
             u = ET{t, 2}(i, 1);
             v = ET{t, 2}(i, 2);            
@@ -236,6 +243,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             dd = sum(differ.^2) - ET{t, 2}(i, 3);
             dely(idu) = dely(idu) + 4 * Lambda * dd * differ;
             dely(idv) = dely(idv) + 4 * Lambda * dd * (-differ);
+            f = f + Lambda * (dd^2);
           end
           
           for i = 1 : k2 % constraints on single missing
@@ -247,10 +255,19 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             differ = y(idu) - X(idv, t);
             dd = sum(differ.^2) - ET{t, 3}(i, 3);
             dely(idu) = dely(idu) + 4 * Lambda * dd * differ;
+            f = f + Lambda * (dd^2);
           end
-          y = y - ALPHA * dely;
-          deltachange = sum(abs(dely));
+          if (f < oldf)
+            oldy = y;
+            oldf = f;
+            y = y - alpha * dely;            
+          else
+            y = oldy;
+            alpha = alpha * 0.618;
+          end          
+          iter_y = iter_y + 1;          
         end
+        X(~observed(:, t), t) = y;
       end      
     end
     

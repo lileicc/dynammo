@@ -41,7 +41,10 @@ tic;
 H = 16;
 % maxIter = 10000;
 % learning the missing value using on_the_fly_and_bone_constraints
-if (~isempty(find(strcmp('Newton', varargin), 1)))
+if (~isempty(find(strcmp('SoftBone', varargin), 1)))
+  [model, Y, LL, mse] = learn_lds_dynammop_soft_bone(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
+  filename = sprintf('%s_%s_%d-%d_soft_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);  
+elseif (~isempty(find(strcmp('Newton', varargin), 1)))
   [model, Y, LL, mse] = learn_lds_dynammop_bone_newton(X, 'Hidden', H, 'Observed', W, 'Bone', bone, varargin{:});
   filename = sprintf('%s_%s_%d-%d_multi_bone_fly', c3dcsv, num2str(missing_bone), missing_frame_start, missing_frame_end);
 elseif  (~isempty(find(strcmp('NewtonDirect', varargin), 1)))
