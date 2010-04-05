@@ -3,14 +3,25 @@
 % newton's method
 
 filelist = {'data/c3d/127_07.csv'; ...
-'data/c3d/132_32.csv'; ...
-'data/c3d/132_43.csv'; ...
-'data/c3d/132_46.csv'; ...
-'data/c3d/135_07.csv'; ...
-'data/c3d/141_04.csv'; ...
-'data/c3d/141_16.csv'; ...
-'data/c3d/143_22.csv'; ...
-'data/c3d/80_10.csv'};
+  'data/c3d/132_32.csv'; ...
+  'data/c3d/132_43.csv'; ...
+  'data/c3d/132_46.csv'; ...
+  'data/c3d/135_07.csv'; ...
+  'data/c3d/141_04.csv'; ...
+  'data/c3d/141_16.csv'; ...
+  'data/c3d/143_22.csv'; ...
+  'data/c3d/80_10.csv'};
+
+data_names = {'#127_07'; ...
+  '#132_32'; ...
+  '#132_43'; ...
+  '#132_46'; ...
+  '#135_07'; ...
+  '#141_04'; ...
+  '#141_16'; ...
+  '#143_22'; ...
+  '#80_10'
+  };
 
 REPEATS = 10;
 stats = cell(1, length(filelist));
@@ -56,7 +67,47 @@ for fileid = 1:length(filelist)
     %csvwrite(sprintf('temp_result_occlusion_comparison_%d.csv', fileid), tempResult);
     close all;
   end
-  stats{fileid} = stat;
-  
-  
+  stats{fileid} = stat;  
 end
+
+
+errors = cell(length(filelist), 1);
+errors_mean = zeros(length(filelist), 3);
+errors_low = errors_mean;
+errors_high = errors_mean;
+errors_median = errors_mean;
+for id = 1 : length(filelist)
+  temp = cell2mat(stats{id});
+  tmp = reshape(temp(:, 2), 3, []);
+  errors{id} = tmp;
+  errors_mean(id, :) = mean(tmp, 2)';
+  errors_low(id, :) = quantile(tmp', 0.25);
+  errors_high(id, :) = quantile(tmp', 0.75);
+  errors_median(id, :) = median(tmp, 2)';
+end
+
+% plot mean
+figure;
+colormap(colorGray);
+bar(errors_mean);
+set(gca, 'XTickLabel', data_names);
+legend('dynammo', 'hard constraints', 'soft constraints');
+ylabel('average mse');
+
+% boxplot 
+% plot error bars
+figure;
+colormap(colorGray);
+bar(errors_median);
+set(gca, 'XTickLabel', data_names);
+legend('dynammo', 'hard constraints', 'soft constraints');
+ylabel('median mse');
+
+hold on;
+bar(errors_high, 0.2);
+bar(errors_low, 0.5);
+
+
+figure;
+all_errors = cell2mat(errors)';
+boxplot(all_errors);

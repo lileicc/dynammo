@@ -4,6 +4,8 @@ function [Y] = linear_interp(X, W)
 % use the matlab internal interpolation method
 % modified by leili (2009-5-5)
 % modified by leili (2010-1-21)
+% modified by leili (2010-4-5), 
+%   modified the extrapolation to be nearest neighbor
 
 M = size(X, 1);
 N = size(X, 2);
@@ -12,8 +14,12 @@ Y = X;
 for i = 1:M
   obs = W(i, :) ~= 0;
   if sum(obs) > 1 
-      yy = interp1(idx(obs), X(i, obs), idx(~obs), 'linear', 'extrap');
+      yy = interp1(idx(obs), X(i, obs), idx(~obs), 'linear');      
       Y(i, ~obs) = yy;
+      % using neareast neighbor for extrapolation
+      idyy = idx(isnan(Y(i, :)));
+      yy = interp1(idx(obs), X(i, obs), idyy, 'nearest', 'extrap');
+      Y(i, idyy) = yy;
   else 
       Y(i, ~obs) = 0;
   end
