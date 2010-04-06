@@ -1,4 +1,4 @@
-function play_mocap_skel(data, colheaders, filename)
+function play_mocap_skel(data, colheaders, filename, varargin)
 % a function to play the motion sequence 
 % by drawing body skeletons
 % data is a matrix with each column corresponding to time tick 
@@ -11,7 +11,9 @@ end
 
 aviobj = avifile(filename, 'fps', 120);
 N = size(data, 2);
-figure;
+if (~any(strcmp('NoFigure', varargin)))
+  figure;
+end
 for i = 1:N
   draw_skel(data(:, i), colheaders);
   hold on;
