@@ -28,8 +28,6 @@ X_large = X_large'; % make it M * N
 X = X_large / 1000;
 N = size(X, 2);
 M = size(X, 1);
-[bone, bone_var] = get_bones(X);
-fprintf('estimated %d bones\n', size(bone, 1));
 W = true(M/3, N);
 W(missing_bone, missing_frame_start:missing_frame_end) = false;
 %figure;

@@ -28,7 +28,7 @@ X_large = X_large'; % make it M * N
 X = X_large / 1000;
 N = size(X, 2);
 M = size(X, 1);
-[bone, bone_var] = get_bones(X, varargin{:});
+[bone, bone_var] = get_bones(X, varargin{:}, 'Bonenames', lab.colheaders);
 fprintf('estimated %d bones\n', size(bone, 1));
 
 W = true(M/3, N);
