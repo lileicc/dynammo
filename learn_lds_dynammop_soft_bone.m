@@ -230,6 +230,7 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
         alpha = 1;
         oldf = +Inf;
         oldy = y;
+        olddely = zeros(size(y));
         while (alpha > eps * 10 && iter_y < 100)
           deltax(~observed(:, t)) = y - xht(~observed(:, t));
           dely = 2 * invSigma(~observed(:, t), :) * deltax;
@@ -257,17 +258,20 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
             dely(idu) = dely(idu) + 4 * Lambda * dd * differ;
             f = f + Lambda * (dd^2);
           end
-          if (f < oldf)
+          if (f < oldf || iter_y <= 1)
             oldy = y;
             oldf = f;
-            y = y - alpha * dely;            
+            olddely = dely;
+            alpha = alpha * 1.618;
           else
             y = oldy;
+            dely = olddely;
             alpha = alpha * 0.618;
           end          
+          y = y - alpha * dely;            
           iter_y = iter_y + 1;          
         end
-        X(~observed(:, t), t) = y;
+        X(~observed(:, t), t) = oldy;
       end      
     end
     
