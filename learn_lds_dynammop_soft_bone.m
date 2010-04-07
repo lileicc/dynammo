@@ -138,6 +138,15 @@ if (~isempty(a))
   plotFun = varargin{a+1};
 end
 
+% get plot function 
+a = find(strcmp('Penalty', varargin), 1);
+if (~isempty(a))
+  Lambda = varargin{a+1};
+else 
+  Lambda = 100;
+end
+
+
 num_bone = round(M / Dim);
 
 % use linear interpolation as an initialization
@@ -149,7 +158,9 @@ ratio = 1;
 diff = 1;
 iter = 0;
 oldLogli = -inf;
-Lambda = 100;
+
+
+
 
 
 ET = cell(N, 8);
