@@ -159,10 +159,8 @@ elseif (~isempty(b))
   bone = [];    
   for i = 1 : 2 : length(hier)
   	a = find(strcmp(hier(i), base_names));
-		b = find(strcmp(hier(i+1), base_names));
+	b = find(strcmp(hier(i+1), base_names));
     if (~isempty(a) && ~isempty(b))
-      a = round(a ./ Dim);
-      b = round(b ./ Dim);
       bone = [bone; a, b, dist(a,b)];
       bone = [bone; b, a, dist(a,b)];
     end
