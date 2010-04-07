@@ -44,6 +44,8 @@ function [model, Xhat, LL, mse] = learn_lds_dynammop_soft_bone(X, varargin)
 %  Default (no args given) the algorithm will learn with H=M, MaxIter=10,
 %  diagonal Q0, Q, R.
 %   'PlotFun', followed by a function handle (should take in X), for plotting purpose.
+%   'Penalty', followed by a number, penalty coefficient term. (default =
+%   100)
 %
 % Returns:
 %   model: a struct with the following attributes:

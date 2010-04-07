@@ -111,3 +111,16 @@ bar(errors_low, 0.5);
 figure;
 all_errors = cell2mat(errors)';
 boxplot(all_errors);
+
+
+fid = fopen('temp.csv', 'wt');
+for id = 1 : length(filelist)
+  fprintf(fid, '\n%s\n', filelist{id});
+  for rid = 1:REPEATS
+    for sid = 1:3
+      fprintf(fid, '\t%g\t%g\t%d\t%d\t%d\n', stats{id}{rid}(sid, 1), stats{id}{rid}(sid, 2), stats{id}{rid}(sid, 3), stats{id}{rid}(sid, 4), stats{id}{rid}(sid, 5));
+    end
+    fprintf(fid, '\n');
+  end
+end
+fclose(fid);
