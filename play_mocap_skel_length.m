@@ -6,12 +6,18 @@ function play_mocap_skel_length(data, colheaders, bones, filename, bound_in)
 % filename: optional file for saving the movie
 
 if (nargin < 4)
-  filename = 'temp.avi';
+  filename = '';
 end
 
 bounds = reshape([min(reshape(min(data'), 3, size(data,1)/3)');max(reshape(max(data'), 3, size(data,1)/3)')], 6, 1);
 
-aviobj = avifile(filename, 'fps', 120, 'compression', 'None');
+if strcmp(filename, '')
+	aviobj = nan();
+	disp('Not recording.');
+else
+	aviobj = avifile(filename, 'fps', 120, 'compression', 'None');
+	disp(strcat('Recording to ', filename));
+end
 N = size(data, 2);
 f = figure;
 set(f, 'RendererMode', 'manual');
@@ -48,11 +54,15 @@ for i = 1:N
   title(strcat('Time = ', num2str(i), '/', num2str(N)));
   drawnow;
   hold off;
-  F = getframe(gcf);
-  aviobj = addframe(aviobj, F);
+  if ~isnan(aviobj)
+	  F = getframe(gcf);
+	  aviobj = addframe(aviobj, F);
+  end
   %pause(1/120);
   %pause;
 end
-aviobj = close(aviobj);
+if ~isnan(aviobj)
+	aviobj = close(aviobj);
+end
 
 
