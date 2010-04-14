@@ -49,14 +49,7 @@ bone_var = variance;
 
 a = find(strcmp('Threshold', varargin));
 b = find(strcmp('Bonenames', varargin));
-if (~isempty(a))
-  THRESHOLD = varargin{a+1};
-  dist(variance > THRESHOLD) = 0;
-  [x, y, d] = find(dist);
-  %idx = x < y;
-  %bone = [x(idx), y(idx), d(idx)];
-  bone = [x, y, d];
-elseif (any(strcmp('Skeleton', varargin)))
+if (any(strcmp('Skeleton', varargin)))
   skeleton_file = 'skeleton.mat';
   load(skeleton_file);
   bone = zeros(size(skeleton, 1), 3);
@@ -165,6 +158,18 @@ elseif (~isempty(b))
       bone = [bone; b, a, dist(a,b)];
     end
   end
+else
+  if (~isempty(a))
+    THRESHOLD = varargin{a+1};
+  else 
+    THRESHOLD = 0.001;
+  end
+  dist(variance > THRESHOLD) = 0;
+  [x, y, d] = find(dist);
+  %idx = x < y;
+  %bone = [x(idx), y(idx), d(idx)];
+  bone = [x, y, d];
+
 end
 
 
