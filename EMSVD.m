@@ -1,15 +1,19 @@
 function [Y, U, S, V, delta] = EMSVD(X, W, rank, MAX_ITER)
 %estimate the Y = U S V' to approxmate X
-%X: N by M 
-%W: N by M to indicating which of X is observed/missing
+%X: M by N
+% M: number of dimension
+% N is number of time ticks
+% each row is a sequence of N time ticks
+%W: M by N to indicating which of X is observed/missing
 %rank: the rank of U, S, V
+% modified by leili(2010-4-21)
 
 if (nargin < 4)
   MAX_ITER = 100;
 end
 
-N = size(X, 1);
-M = size(X, 2);
+N = size(X, 2);
+M = size(X, 1);
 if (nargin < 3)
   rank = min(M,N);
 end
