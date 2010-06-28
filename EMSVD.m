@@ -1,3 +1,16 @@
+% This source code is (c) Copyright by Lei Li.
+% All rights preserved.
+%
+% Permission is granted to use it for non-profit purposes,
+% including research and teaching. For-profit use requires
+% the express consent of the author (leili@cs.cmu.edu).
+%
+% Details in the following paper:
+%   Lei Li, Jim McCann, Nancy Pollard, Christos Faloutsos. DynaMMo: Mining
+%   and Summarization of Coevolving Sequences with Missing Values. KDD '09,
+%   Paris, France.
+%
+
 function [Y, U, S, V, delta] = EMSVD(X, W, rank, MAX_ITER)
 %estimate the Y = U S V' to approxmate X
 %X: M by N

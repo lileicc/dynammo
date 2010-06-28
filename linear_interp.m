@@ -1,3 +1,10 @@
+% This source code is (c) Copyright by Lei Li.
+% All rights preserved.
+%
+% Permission is granted to use it for non-profit purposes,
+% including research and teaching. For-profit use requires
+% the express consent of the author (leili@cs.cmu.edu).
+
 function [Y] = linear_interp(X, W)
 % use linear interpolation to fill in the missing value
 % W is the indication matrix, 1=observed, 0=missing.
