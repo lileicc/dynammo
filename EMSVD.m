@@ -17,8 +17,8 @@ function [Y, U, S, V, delta] = EMSVD(X, W, rank, MAX_ITER)
 % M: number of dimension
 % N is number of time ticks
 % each row is a sequence of N time ticks
-%W: M by N to indicating which of X is observed/missing
-%rank: the rank of U, S, V
+%W: M by N to indicating which of X is observed(=1)/missing(=0)
+%rank: the rank of U, S, V (optional, =M if not given)
 % modified by leili(2010-4-21)
 
 if (nargin < 4)
