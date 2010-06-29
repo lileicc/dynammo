@@ -6,13 +6,14 @@ function [group, entrop, P, D, mu0, fp, component] = fingerprint_classify(X, var
 %  Parsimonious Linear Fingerprinting for Time Series. 
 %  VLDB 2010. Singapore
 %
+% Args:
 %   X: M * N matrix, M is number of sequences, N is the time duration.
-% group is a vector size of M, telling the clusters
-% entropy is the conditional entropy of prediction vs the groundtruth.
+%   'Class': followed by a vector indicating the true class labels.
 %
 % Out: 
 %   group: label for each row of sequences
 %   fp: the final fingerprints(features) 
+%   entrop: the conditional entropy of prediction vs the groundtruth.
 %   
 % Example:
 % cls = [1 1 2 2];
