@@ -1,11 +1,20 @@
-function [group, entrop, P, D, mu0, coordinate, component] = fingerprint_classify(X, varargin)                                             
+function [group, entrop, P, D, mu0, fp, component] = fingerprint_classify(X, varargin)                                             
 % kalman fingerprinting clustering
-%  (PLF method)
+%  (PLiF method)
+%
+%  Lei Li, B. Aditya Prakash, Christos Faloutsos. 
+%  Parsimonious Linear Fingerprinting for Time Series. 
+%  VLDB 2010. Singapore
+%
 %   X: M * N matrix, M is number of sequences, N is the time duration.
 % group is a vector size of M, telling the clusters
-% entropy is the conditional entropy of prediction vs the groundtruth. 
-% 
-% example:
+% entropy is the conditional entropy of prediction vs the groundtruth.
+%
+% Out: 
+%   group: label for each row of sequences
+%   fp: the final fingerprints(features) 
+%   
+% Example:
 % cls = [1 1 2 2];
 % [group, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 10,
 % 'MaxIter', 100, 'Class', cls);
@@ -24,9 +33,9 @@ if (~ isempty(ind))
 end
 
 %%%%%%%%%%%%%% *** best one %%%%%%%%%%%%%%%%%% write this in the paper
-% PLF
-[component, coordinate] = princomp(Q, 'econ');
-group = sign(coordinate(:,1));
+% PLiF
+[component, fp] = princomp(Q, 'econ');
+group = sign(fp(:,1));
 
 class = varargin{find(strcmp('Class', varargin), 1) + 1};
 cmpca = confusionmat(class, group);
