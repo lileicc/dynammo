@@ -9,12 +9,14 @@ function [errors, ratios, D, mu0, Pr, Qc, Qs, Qm, Rc, Rs, Rm, P, Y, zhat] = fing
 %
 % Option:
 % 'MaxRatio': followed by a number max allowed ratio for compression
+%
+%
 
 N = size(X, 2);
 M = size(X, 1);
 
 
-[P, D, mu0, zhat] = fingerprint(X, varargin{:});
+[feature, P, D, mu0, zhat] = fingerprint(X, varargin{:});
 oldP = P;
 
 % number of hidden dimension

@@ -23,8 +23,7 @@ for i = 1:M
 end
 
 class = [1 1 1 2 2];
-
-[group, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 4, 'MaxIter', 100, 'Class', class);
+[group, fp, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 4, 'MaxIter', 100, 'Class', class);
 
 HIDDEN = length(D);
 
@@ -80,7 +79,7 @@ end
 
 class = [1 1 1 2 2];
 
-[group, entrop, P, D, mu0, feature] = fingerprint_classify(X, 'Hidden', 6, 'MaxIter', 100, 'Class', class);
+[group, feature, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 6, 'MaxIter', 100, 'Class', class);
 
 periods = 2 * pi ./ angle(D);
 

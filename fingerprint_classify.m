@@ -1,4 +1,4 @@
-function [group, entrop, P, D, mu0, fp, component] = fingerprint_classify(X, varargin)                                             
+function [group, fp, entrop, P, D, mu0] = fingerprint_classify(X, varargin)                                             
 % kalman fingerprinting clustering
 %  (PLiF method)
 %
@@ -13,32 +13,34 @@ function [group, entrop, P, D, mu0, fp, component] = fingerprint_classify(X, var
 % Out: 
 %   group: label for each row of sequences
 %   fp: the final fingerprints(features) 
-%   entrop: the conditional entropy of prediction vs the groundtruth.
+%   entrop: the conditional entropy of prediction vs the groundtruth. only
+%   if the 'Class' argument is present. otherwise will just =0.
+%   P: complex projection matrix
+%   D: complex transition matrix
+%   mu0: initial starting state
 %   
 % Example:
 % cls = [1 1 2 2];
 % [group, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 10,
 % 'MaxIter', 100, 'Class', cls);
+%
+% See also: fingerprint, learn_lds
+%
+% $Author$@cs.cmu.edu
+% $Date$
+% $Rev$
 
-[P, D, mu0] = fingerprint(X, varargin{:});
-
-HIDDEN = length(D);
-
-ind = find(abs(imag(D)) > 1e-10); % assume 0==1e-10
-num_real = HIDDEN;
-% further eliminate the conjugate ones
-if (~ isempty(ind)) 
-    num_real = ind(1) - 1;
-    %D = D(subind);
-    Q = abs(P(:, (num_real+1):2:end)); %only the magnitude
-end
+[fp, P, D, mu0] = fingerprint(X, varargin{:});
 
 %%%%%%%%%%%%%% *** best one %%%%%%%%%%%%%%%%%% write this in the paper
 % PLiF
-[component, fp] = princomp(Q, 'econ');
 group = sign(fp(:,1));
 
-class = varargin{find(strcmp('Class', varargin), 1) + 1};
-cmpca = confusionmat(class, group);
-cmpcah = condentropy(cmpca);
-entrop = cmpcah;
+a = find(strcmp('Class', varargin), 1);
+if (isempty(a))
+  entrop = 0;
+else
+  class = varargin{a + 1};
+  cmpca = confusionmat(class, group);
+  entrop = condentropy(cmpca);
+end

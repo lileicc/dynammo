@@ -9,7 +9,7 @@ N = size(X, 1);
 M = size(X, 2);
 
 
-[P, D, mu0, zhat] = fingerprint(X, varargin{:});
+[feature, P, D, mu0, zhat] = fingerprint(X, varargin{:});
 oldP = P;
 
 % number of hidden dimension
