@@ -9,6 +9,7 @@ function [group, fp, entrop, P, D, mu0] = fingerprint_classify(X, varargin)
 % Args:
 %   X: M * N matrix, M is number of sequences, N is the time duration.
 %   'Class': followed by a vector indicating the true class labels.
+%   'Normalize': whether to normalize the data (default=false)
 %
 % Out: 
 %   group: label for each row of sequences
@@ -29,6 +30,12 @@ function [group, fp, entrop, P, D, mu0] = fingerprint_classify(X, varargin)
 % $Author$@cs.cmu.edu
 % $Date$
 % $Rev$
+
+if (any(strcmp('Normalize', varargin)))
+  mn = mean(mean(X));
+  st = sum(sum((X - mn).^2)) / (numel(X));
+  X = (X - mn) ./ st;
+end
 
 [fp, P, D, mu0] = fingerprint(X, varargin{:});
 
