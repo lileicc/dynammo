@@ -1,4 +1,4 @@
-function [group, fp, entrop, P, D, mu0] = fingerprint_classify(X, varargin)                                             
+function [group, fp, entrop, P, D, mu0, model] = fingerprint_classify(X, varargin)                                             
 % kalman fingerprinting clustering
 %  (PLiF method)
 %
@@ -37,7 +37,7 @@ if (any(strcmp('Normalize', varargin)))
   X = (X - mn) ./ st;
 end
 
-[fp, P, D, mu0] = fingerprint(X, varargin{:});
+[fp, P, D, mu0, zhat, model] = fingerprint(X, varargin{:});
 
 %%%%%%%%%%%%%% *** best one %%%%%%%%%%%%%%%%%% write this in the paper
 % PLiF

@@ -1,4 +1,4 @@
-function [Feature, P, D, mu0, zhat] = fingerprint(X, varargin)
+function [Feature, P, D, mu0, zhat, model] = fingerprint(X, varargin)
 %FINGERPRINT extract features from time series data using PLiF method
 % feature extraction for time series data (PLiF method)
 %
