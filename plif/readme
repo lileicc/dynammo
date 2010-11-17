@@ -1,0 +1,11 @@
+to run the test file
+run:
+make demo
+
+System requirement:
+Linux, matlab
+
+Also require the dynammo package in the matlab seach path
+
+Description:
+
