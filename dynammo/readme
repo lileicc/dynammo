@@ -1,0 +1,22 @@
+to run the test file
+run:
+make demo
+
+System requirement:
+Linux, matlab
+
+Description:
+
+Find attached perl scripts (from Jim):
+
+c3d_to_csv.pl -> which can convert .c3d files into .csv files with labeled
+column headers. (Useful for getting mocap data into matlab.)
+
+csv_into_c3d.pl -> which can update the data in a c3d file to match a csv
+file (useful for importing back into vicon).
+
+remove_markers.pl -> trim out markers from a csv file given names and
+ranges. Useful for creating testing data by hand.
+
+These are from my svn repository, revision 1882 (I write this here so if I
+update, I'll know what version I sent you!).
