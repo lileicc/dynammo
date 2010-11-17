@@ -31,8 +31,8 @@ demo:
 zip: tar
 
 tar: ${DYNAMMOFILE} ${DYNAMMOPFILE}
-	zip dynammo.zip ${DYNAMMOFILE}
-	zip dynammop.zip ${DYNAMMOPFILE}
+	zip dynammo${REVISION}.zip ${DYNAMMOFILE}
+	zip dynammop${REVISION}.zip ${DYNAMMOPFILE}
 
 sync: 
 	svn up
