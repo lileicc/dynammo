@@ -1,5 +1,5 @@
 function [ model ] = learn_clds(X, varargin)
-%UNTITLED learning a complex dynamical systems
+%learn_clds learning a complex dynamical systems
 %   Detailed explanation goes here
 % 
 % 
