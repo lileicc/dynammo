@@ -77,7 +77,8 @@ end
 % get the initial model
 a = find(strcmp('Model', varargin), 1);
 if (isempty(a))
-  model.A = diag(complex(randn(H, 1), randn(H, 1)));
+  model.A = diag(exp(1i * randn(H, 1)));
+  %model.A = diag(complex(randn(H, 1), randn(H, 1)));
   model.C = eye(M, H) + complex(randn(M, H), randn(M, H));
   model.Q = eye(H, H);
   model.R = eye(M, M);

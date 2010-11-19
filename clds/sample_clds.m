@@ -40,18 +40,8 @@ end
 
 end
 
-function [V] = genPSD(M, dia)
-% generate PSD matrix
-R = triu(complex(randn(M, M), randn(M, M)));
-V = R' * R;
-if ((nargin > 1) && (dia))
-  V = diag(diag(V));
-end
-end
-
 function [x] = cnormrnd(mu)
 a = real(mu);
-b = imag(mu);
 [n,m] = size(a);
 z = zeros(n, m);
 s = repmat(0.5, n, m);
