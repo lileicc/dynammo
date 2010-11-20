@@ -68,15 +68,6 @@ else
 end
 
 TAG = true;
-if (TAG)
-iter = 1;
-while iter < 10
-  invQ = inv(model.Q);
-  model.A = diag( (invQ .* (SzzN.')) \ (invQ .* (Sz1z).'));
-  model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
-end
-
-else
     
 % full rank version
 model.A = Sz1z / SzzN;
@@ -89,6 +80,17 @@ elseif (any(strcmp('FullQ', varargin)))
 else
   delta = (trace(Szz) - trace(Ezz{1}) - 2 * trace(model.A * Sz1z') + trace(model.A * SzzN * model.A')) / (N-1) / H;
   model.Q = diag(repmat(real(delta), H, 1));
+end
+
+if (TAG)
+iter = 1;
+while iter < 2
+  invQ = inv(model.Q);
+  model.A = diag( sum((invQ .* (SzzN.')) \ (invQ .* (Sz1z).'), 2) );
+  %tmp = model.A * Sz1z';
+  %model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
+  model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1)));
+  iter = iter + 1;
 end
 end
 
