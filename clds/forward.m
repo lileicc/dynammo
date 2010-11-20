@@ -41,8 +41,8 @@ UU = cell(1, N);
 P = cell(1, N);
 
 % initialize
-u{1} = model.mu0;
-UU{1} = model.Q0;
+%u{1} = model.mu0;
+%UU{1} = model.Q0;
 logli = 0;
 
 % FAST = false;
@@ -69,7 +69,7 @@ for i = 1:N
     P{i} = model.Q0;
     u{i} =  model.mu0;
   else 
-    P{i} = model.A * V{i-1} * model.A' + model.Q;
+    P{i} = model.A * UU{i-1} * model.A' + model.Q;
     %KP = P{i-1};
     u{i} =  model.A * u{i-1};
   end 

@@ -59,32 +59,48 @@ SzzN = Szz - Ezz{N}; % sum of E[z, z] from 1 to n-1
 model.mu0 = Ez{1};
 model.Q0 = Ezz{1} - Ez{1} * Ez{1}';
 if (any(strcmp('DiagQ0', varargin)))  
-  model.Q0 = diag(diag(model.Q0));
+  model.Q0 = diag(real(diag(model.Q0)));
 elseif (any(strcmp('FullQ', varargin)))
   % do nothing
+  %diag(model.Q0) = real(diag(model.Q0));
 else
-  model.Q0 = diag(repmat(trace(model.Q0) / H, H, 1));
+  model.Q0 = diag(repmat(real(trace(model.Q0) / H), H, 1));
 end
 
+TAG = true;
+if (TAG)
+iter = 1;
+while iter < 10
+  invQ = inv(model.Q);
+  model.A = diag( (invQ .* (SzzN.')) \ (invQ .* (Sz1z).'));
+  model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
+end
+
+else
+    
+% full rank version
 model.A = Sz1z / SzzN;
 if (any(strcmp('DiagQ', varargin)))
-  model.Q = diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1));
+  model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1)));
 elseif (any(strcmp('FullQ', varargin)))
   tmp = model.A * Sz1z';
   model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
+  %diag(model.Q) = real(diag(model.Q));
 else
   delta = (trace(Szz) - trace(Ezz{1}) - 2 * trace(model.A * Sz1z') + trace(model.A * SzzN * model.A')) / (N-1) / H;
-  model.Q = diag(repmat(delta, H, 1));
+  model.Q = diag(repmat(real(delta), H, 1));
 end
+end
+
 
 model.C = Sxz / Szz;
 
 if (any(strcmp('DiagR', varargin)))
-  model.R = diag((diag(X * X') - 2 * diag(model.C * Sxz') + diag(model.C * Szz * model.C')) / N);
+  model.R = diag(real((diag(X * X') - 2 * diag(model.C * Sxz') + diag(model.C * Szz * model.C')) / N));
 elseif (any(strcmp('FullR', varargin)))
   tmp = model.C * Sxz';
   model.R = (X * X' - tmp - tmp' + model.C * Szz * model.C') / N;
 else
   delta = (trace(X * X') - 2 * trace(model.C * Sxz') + trace(model.C * Szz * model.C')) / N / M;
-  model.R = diag(repmat(delta, M, 1));
+  model.R = diag(repmat(real(delta), M, 1));
 end

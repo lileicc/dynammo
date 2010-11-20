@@ -126,13 +126,12 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
 end
 model = oldmodel;
 
+end
+  
 function [t] = isTiny(sigma)
 % test whether the matrix sigma is close to zero
 %
 t = (norm(sigma, 1) < eps) || (any(diag(sigma) < eps));
-
-
-
 
 end
 
