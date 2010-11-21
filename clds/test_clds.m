@@ -1,4 +1,4 @@
-
+%% generate random clds
 clear;
 [X, model_true] = sample_clds(100, 5, 2);
 Y = real(X);
@@ -16,7 +16,8 @@ plot(Y');
 subplot(2, 1, 2);
 plot(Yhat');
 
-%% generate sample data
+%% generate sample sin data
+clear;
 N = 500;
 t = (1:N)';
 a = zeros(N, 2);
@@ -42,3 +43,12 @@ for i = 1:M
     plot(X(1, :), 'black--');
   end
 end
+export_fig('sin_data.pdf', '-pdf');
+
+
+model_train = learn_clds(X, 'Hidden', 4, 'MaxIter', 1000);
+
+score = abs(model_train.C);
+figure;
+imagesc(score);
+export_fig('sin_data_clds_C.pdf', '-pdf');
