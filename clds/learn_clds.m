@@ -17,7 +17,7 @@ function [ model ] = learn_clds(X, varargin)
 %   variables.
 %   'MaxIter', followed by an integer indicating the number of max
 %   iterations.
-%   'Model', followed by a struct denoting a model to start with (see
+%   'Model0', followed by a struct denoting a model to start with (see
 %   below).
 %  covariance options:
 %   'DiagQ0', if presented, will learn a diagonal covariance Q0
@@ -32,6 +32,8 @@ function [ model ] = learn_clds(X, varargin)
 %  Note these options could not coexist for the same covariance matrix.
 %  Default (no args given) the algorithm will learn with H=M, MaxIter=10,
 %  diagonal and isotropic Q0, Q, R.
+%    'model.A', if provided, the model.A will remain the given value
+%    'model.mu0', if provided, the model.mu0 will remain the given value
 %
 % Returns:
 %   model: a struct with the following attributes:
@@ -53,6 +55,9 @@ function [ model ] = learn_clds(X, varargin)
 % $Author$@cs.cmu.edu
 % $Date$
 % $Rev$
+%
+% change log:
+%
 %
 
 N = size(X, 2);
@@ -82,11 +87,22 @@ if (isempty(a))
   model.C = eye(M, H) + complex(randn(M, H), randn(M, H));
   model.Q = eye(H, H);
   model.R = eye(M, M);
-  model.mu0 = complex(randn(H, 1), randn(H, 1));
+  %model.mu0 = complex(randn(H, 1), randn(H, 1));
+  model.mu0 = zeros(H, 1);
   model.Q0 = model.Q;
 else
   model = varargin{a+1};
 end
+
+a = find(strcmp('model.A', varargin), 1);
+if (~isempty(a))
+  model.A = varargin{a+1};
+end
+a = find(strcmp('model.mu0', varargin), 1);
+if (~isempty(a))
+  model.mu0 = varargin{a+1};
+end
+
 
 LOGLI = true;
 if (nargout < 2)

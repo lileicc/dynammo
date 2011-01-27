@@ -22,6 +22,7 @@ function [model] = MLE_clds(X, Ez, Ezz, Ez1z, varargin)
 %  Note these options could not coexist for the same covariance matrix.
 %  Default (no args given) the algorithm will learn with diagonal 
 %  and isotropic Q0, Q, R.
+%    'model.A', if provided, the model.A will not be the given value
 %
 % Returns:
 %   model: a struct with the following attributes:
@@ -56,7 +57,12 @@ end
 
 SzzN = Szz - Ezz{N}; % sum of E[z, z] from 1 to n-1
 
-model.mu0 = Ez{1};
+a = find(strcmp('model.mu0', varargin), 1);
+if (~isempty(a))
+  model.mu0 = varargin{a+1};
+else
+  model.mu0 = Ez{1};
+end
 model.Q0 = Ezz{1} - Ez{1} * Ez{1}';
 if (any(strcmp('DiagQ0', varargin)))  
   model.Q0 = diag(real(diag(model.Q0)));
@@ -70,7 +76,16 @@ end
 TAG = true;
     
 % full rank version
-model.A = Sz1z / SzzN;
+a = find(strcmp('model.A', varargin), 1);
+if (isempty(a))  
+  model.A = Sz1z / SzzN;
+  %FIXA = false;
+else
+  model.A = varargin{a+1};
+  %FIXA = true;
+  TAG = false; % no need to do iteration
+end
+
 if (any(strcmp('DiagQ', varargin)))
   model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1)));
 elseif (any(strcmp('FullQ', varargin)))
@@ -84,7 +99,7 @@ end
 
 if (TAG)
 iter = 1;
-while iter < 2
+while iter < 3
   invQ = inv(model.Q);
   model.A = diag( sum((invQ .* (SzzN.')) \ (invQ .* (Sz1z).'), 2) );
   %tmp = model.A * Sz1z';
