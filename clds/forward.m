@@ -34,6 +34,7 @@ N = size(X, 2);
 M = size(X, 1);
 H = size(model.A, 1); %dimension of hidden variable
 Ih = eye(H, H);
+Im = eye(M, M);
 
 %predicted mean for hidden variable z
 u = cell(1, N);
@@ -73,6 +74,10 @@ for i = 1:N
     %KP = P{i-1};
     u{i} =  model.A * u{i-1};
   end 
+  %P{i}(Ih ~= 0) = abs(P{i}(Ih ~= 0));
+  if (abs(imag(P{i}(Ih ~= 0))) > 1E-10) 
+    warning('det of not positive definite < 0 @ forward propagation');
+  end
   K = (inv(P{i}) + invCRC) \ invRC';
   %sigma_c = model.C * KP * model.C' + model.R;
   %invSig = inv(sigma_c);
@@ -83,8 +88,9 @@ for i = 1:N
   UU{i} = (Ih - K * model.C) * P{i};
   if (LOGLI)
     %sigma_c = model.C * P{i-1} * model.C' + model.Q;
-    invSig = P{i} * model.C' \ K; 
-    posDef = delta' * invSig * delta;
+    invSig = P{i} * model.C' \ K;
+    invSig(Im ~= 0) = abs(invSig(Im ~= 0));
+    posDef = real(delta' * invSig * delta);    
     if (posDef < 0)
       warning('det of not positive definite < 0');
     end
