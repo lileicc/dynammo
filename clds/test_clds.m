@@ -102,12 +102,14 @@ title('spectrum');
 xlabel('frequency');
 
 figure;
-hold all;
-bar((0:(N-1))/N, [xft_sp, x_clds_sp']);
+colormap colorGray;
+bar((0:(N-1))/N, [xft_sp, x_clds_sp'], 0.98);
 %bar((0:(N-1))/N, x_clds_sp);
 legend('DFT', 'CLDS', 'Location', 'Best');
-title('spectrum');
+ylabel('spectrum');
 xlabel('frequency');
+xlim([0, 1]);
+
 
 
 %% test on the mocap data
