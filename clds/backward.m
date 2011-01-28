@@ -24,7 +24,9 @@ for i = (N-1): (-1) : 1
   Ez{i} = u{i} + J * (Ez{i+1} - model.A * u{i});
   Ez1z{i} = Vhat * J' + Ez{i+1} * Ez{i}';
   Vhat = UU{i} + J * (Vhat - P{i+1}) * J';
+  Vhat(Ih ~= 0) = abs(Vhat(Ih ~= 0)); % ensure it is PSD
   Ezz{i} = Vhat + Ez{i} * Ez{i}';
+  Ezz{i}(Ih ~= 0) = abs(Ezz{i}(Ih ~= 0)); % ensure it is PSD
   if (abs(imag(Vhat(Ih ~= 0))) > 1E-10)
     warning('det of not positive definite < 0 @ backpropagation');
   end

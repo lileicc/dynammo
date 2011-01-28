@@ -91,43 +91,54 @@ else
   TAG = false; % no need to do iteration
 end
 
+QSTATE = 0;
 a = find(strcmp('model.Q', varargin), 1);
 if (~isempty(a))
   model.Q = varargin{a+1};
 else
+  tmp = model.A * Sz1z';
   if (any(strcmp('DiagQ', varargin)))
-    model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1)));
+    model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - diag(tmp) - diag(tmp') + diag(model.A * SzzN * model.A')) / (N-1)));
+    QSTATE = 1;
   elseif (any(strcmp('FullQ', varargin)))
     tmp = model.A * Sz1z';
     model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
     %diag(model.Q) = real(diag(model.Q));
+    QSTATE = 2;
   else
-    delta = (trace(Szz) - trace(Ezz{1}) - 2 * trace(model.A * Sz1z') + trace(model.A * SzzN * model.A')) / (N-1) / H;
+    delta = (trace(Szz) - trace(Ezz{1}) - trace(tmp) - trace(tmp') + trace(model.A * SzzN * model.A')) / (N-1) / H;
     model.Q = diag(repmat(real(delta), H, 1));
+    QSTATE = 3;
   end
 end
 
 if (TAG)
-iter = 1;
-while iter < 3
-  invQ = inv(model.Q);
-  model.A = diag( sum((invQ .* (SzzN.')) \ (invQ .* (Sz1z).'), 2) );
-  %tmp = model.A * Sz1z';
-  %model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
-  model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1)));
-  iter = iter + 1;
+  iter = 1;
+  while iter < 3
+    invQ = inv(model.Q);
+    model.A = diag( sum((invQ .* (SzzN.')) \ (invQ .* (Sz1z).'), 2) );
+    tmp = model.A * Sz1z';
+    if (QSTATE == 1)
+      model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - diag(tmp) - diag(tmp') + diag(model.A * SzzN * model.A')) / (N-1)));
+    elseif (QSTATE == 2)
+      tmp = model.A * Sz1z';
+      model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
+    elseif (QSTATE == 3)
+      delta = (trace(Szz) - trace(Ezz{1}) - trace(tmp) - trace(tmp') + trace(model.A * SzzN * model.A')) / (N-1) / H;
+      model.Q = diag(repmat(real(delta), H, 1));
+    end
+    iter = iter + 1;
+  end
 end
-end
-
 
 model.C = Sxz / Szz;
 
+tmp = model.C * Sxz';
 if (any(strcmp('DiagR', varargin)))
-  model.R = diag(real((diag(X * X') - 2 * diag(model.C * Sxz') + diag(model.C * Szz * model.C')) / N));
+  model.R = diag(real((diag(X * X') - diag(tmp) - diag(tmp') + diag(model.C * Szz * model.C')) / N));
 elseif (any(strcmp('FullR', varargin)))
-  tmp = model.C * Sxz';
   model.R = (X * X' - tmp - tmp' + model.C * Szz * model.C') / N;
 else
-  delta = (trace(X * X') - 2 * trace(model.C * Sxz') + trace(model.C * Szz * model.C')) / N / M;
+  delta = (trace(X * X') - trace(tmp) - trace(tmp') + trace(model.C * Szz * model.C')) / N / M;
   model.R = diag(repmat(real(delta), M, 1));
 end

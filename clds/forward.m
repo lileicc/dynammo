@@ -74,7 +74,7 @@ for i = 1:N
     %KP = P{i-1};
     u{i} =  model.A * u{i-1};
   end 
-  %P{i}(Ih ~= 0) = abs(P{i}(Ih ~= 0));
+  P{i}(Ih ~= 0) = abs(P{i}(Ih ~= 0)); % ensure it is PSD
   if (abs(imag(P{i}(Ih ~= 0))) > 1E-10) 
     warning('det of not positive definite < 0 @ forward propagation');
   end
@@ -86,8 +86,9 @@ for i = 1:N
   delta = X(:, i) - u_c;
   u{i} = u{i} + K * delta;
   UU{i} = (Ih - K * model.C) * P{i};
+  UU{i}(Im ~= 0) = abs(UU{i}(Im ~= 0)); % ensure it is PSD
   if (LOGLI)
-    %sigma_c = model.C * P{i-1} * model.C' + model.Q;
+    %sigma_c = model.C * P{i-1} * model.C' + model.R;
     invSig = P{i} * model.C' \ K;
     invSig(Im ~= 0) = abs(invSig(Im ~= 0));
     posDef = real(delta' * invSig * delta);    

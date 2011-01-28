@@ -71,17 +71,26 @@ xft = fft(X);
 
 X = X';
 %A = diag([exp(2i*pi*f1), exp(-2i*pi*f1), exp(2i*pi*f2), exp(-2i*pi*f2)]);
-A = diag([exp(-2i*pi*(0:(N-1)) / N)]);
+A = diag([exp(2i*pi*(0:(N-1)) / N)]);
 mu0 = ones(N, 1);
 Q0 = 0.001 * eye(N);
 Q = 0.001 * eye(N);
 model_train = learn_clds(X, 'model.A', A, 'model.mu0', mu0, 'Hidden', N, 'MaxIter', 500);
 model_train = learn_clds(X, 'model.A', A, 'Hidden', N, 'MaxIter', 500);
-%[model_train, LL] = learn_clds(X, 'model.A', A, 'model.mu0', mu0, 'model.Q0', Q0, 'model.Q', Q, 'Hidden', N, 'MaxIter', 500);
-%model_train = learn_clds(X, 'Hidden', 2, 'MaxIter', 100);
 [model_train, LL] = learn_clds(X, 'model.A', A, 'model.mu0', mu0, 'Hidden', N, 'MaxIter', 500);
+[model_train, LL] = learn_clds(X, 'model.A', A, 'model.mu0', mu0, 'model.Q0', Q0, 'model.Q', Q, 'Hidden', N, 'MaxIter', 500);
+%model_train = learn_clds(X, 'Hidden', 2, 'MaxIter', 100);
+[model_train, LL] = learn_clds(X, 'model.A', A, 'model.mu0', mu0, 'Hidden', N, 'MaxIter', 1000, 'DiagQ0', 'DiagQ');
 
-xft_sp = 2 * abs(xft) / N;
+
+modelfft.mu0=mu0;
+modelfft.A = A;
+modelfft.C = xft.' / N;
+modelfft.Q = Q;
+modelfft.R = 1;
+[model_train, LL] = learn_clds(X, 'Model', modelfft, 'Hidden', N, 'MaxIter', 100);
+
+xft_sp = abs(xft) / N;
 x_clds_sp = abs(model_train.C);
 
 figure;

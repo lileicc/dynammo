@@ -84,9 +84,10 @@ a = find(strcmp('Model', varargin), 1);
 if (isempty(a))
   model.A = diag(exp(1i * randn(H, 1)));
   %model.A = diag(complex(randn(H, 1), randn(H, 1)));
-  model.C = eye(M, H) + complex(randn(M, H), randn(M, H));
-  model.Q = eye(H, H);
-  model.R = eye(M, M);
+  %model.C = ones(M, H) + complex(randn(M, H), randn(M, H));
+  model.C = zeros(M, H);
+  model.Q = eye(H, H) * 1E-2;
+  model.R = eye(M, M) * 1E-2;
   model.mu0 = ones(H, 1) + complex(randn(H, 1), randn(H, 1));
   %model.mu0 = zeros(H, 1);
   model.Q0 = model.Q;
@@ -132,16 +133,9 @@ iter = 0;
 oldLogli = -inf;
 
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
-  oldmodel = model;
   iter = iter + 1;
   if (LOGLI)
     [u, UU, P, logli] = forward(X, model, varargin{:});
-  else 
-    [u, UU, P] = forward(X, model, varargin{:});
-  end
-  [Ez, Ezz, Ez1z] = backward(u, UU, P, model);
-  model = MLE_clds(X, Ez, Ezz, Ez1z, varargin{:});
-  if (LOGLI)
     logli = real(logli);
     diff = (logli - oldLogli);
     if (logli < oldLogli)
@@ -151,12 +145,15 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
     LL(iter) = logli;
     oldLogli = logli;
     fprintf('iteration = %d, logli = %d\n', iter, logli);
-  else
+  else 
+    [u, UU, P] = forward(X, model, varargin{:});
     fprintf('iteration = %d\n', iter);
-  end
+  end  
+  [Ez, Ezz, Ez1z] = backward(u, UU, P, model);
+  oldmodel = model;  
+  model = MLE_clds(X, Ez, Ezz, Ez1z, varargin{:});
 end
 model = oldmodel;
-
 end
   
 function [t] = isTiny(sigma)
