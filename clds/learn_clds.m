@@ -1,4 +1,4 @@
-function [ model ] = learn_clds(X, varargin)
+function [ model, LL ] = learn_clds(X, varargin)
 %learn_clds learning a complex dynamical systems
 % Linear Dynamical Systems are described by the following equations:
 % z_1 = mu0 + w_1
@@ -87,8 +87,8 @@ if (isempty(a))
   model.C = eye(M, H) + complex(randn(M, H), randn(M, H));
   model.Q = eye(H, H);
   model.R = eye(M, M);
-  %model.mu0 = complex(randn(H, 1), randn(H, 1));
-  model.mu0 = zeros(H, 1);
+  model.mu0 = ones(H, 1) + complex(randn(H, 1), randn(H, 1));
+  %model.mu0 = zeros(H, 1);
   model.Q0 = model.Q;
 else
   model = varargin{a+1};
@@ -102,7 +102,22 @@ a = find(strcmp('model.mu0', varargin), 1);
 if (~isempty(a))
   model.mu0 = varargin{a+1};
 end
-
+a = find(strcmp('model.Q0', varargin), 1);
+if (~isempty(a))
+  model.Q0 = varargin{a+1};
+end
+a = find(strcmp('model.Q', varargin), 1);
+if (~isempty(a))
+  model.Q = varargin{a+1};
+end
+a = find(strcmp('model.R', varargin), 1);
+if (~isempty(a))
+  model.R = varargin{a+1};
+end
+a = find(strcmp('model.C', varargin), 1);
+if (~isempty(a))
+  model.C = varargin{a+1};
+end
 
 LOGLI = true;
 if (nargout < 2)

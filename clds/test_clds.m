@@ -71,10 +71,13 @@ xft = fft(X);
 
 X = X';
 %A = diag([exp(2i*pi*f1), exp(-2i*pi*f1), exp(2i*pi*f2), exp(-2i*pi*f2)]);
-A = diag([exp(2i*pi*(0:(N-1)) / N)]);
+A = diag([exp(-2i*pi*(0:(N-1)) / N)]);
 mu0 = ones(N, 1);
+Q0 = 0.001 * eye(N);
+Q = 0.001 * eye(N);
 model_train = learn_clds(X, 'model.A', A, 'model.mu0', mu0, 'Hidden', N, 'MaxIter', 500);
 model_train = learn_clds(X, 'model.A', A, 'Hidden', N, 'MaxIter', 500);
+model_train = learn_clds(X, 'model.A', A, 'model.mu0', mu0, 'model.Q0', Q0, 'model.Q', Q, 'Hidden', N, 'MaxIter', 500);
 %model_train = learn_clds(X, 'Hidden', 2, 'MaxIter', 100);
 
 xft_sp = 2 * abs(xft) / N;
@@ -121,16 +124,26 @@ X24 = motion_dim{24}(:, classind);
 % rfoot.z
 X33 = motion_dim{33}(:, classind);
 
+
 X = X33';
 trueclass = class(classind);
 %[group, features, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 8, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
-model = learn_clds(X, 'Hidden', 8, 'MaxIter', 100);
-features = abs(model.C);
-kmeans(features);
+for i = 1 : 10
+  model{i} = learn_clds(X, 'Hidden', i, 'MaxIter', 10000);
+  features{i} = abs(model{i}.C);
+  pred{i} = kmeans(features{i}, 2);
+  cm{i} = confusionmat(trueclass, pred{i});
+  ce{i} = condentropy(trueclass, pred{i});
+  [coeff, score] = princomp(features{i}, 'econ');
+  pred1 = kmeans(score(:,1:2), 2);
+  cm1 = confusionmat(trueclass, pred1);
+end
 figure;
 hold all;
-scatter(features(trueclass==2, 1), features(trueclass==2, 2));
-scatter(features(trueclass==3, 1), features(trueclass==3, 2));
+%scatter(features(trueclass==2, 1), features(trueclass==2, 2));
+%scatter(features(trueclass==3, 1), features(trueclass==3, 2));
+scatter(score(trueclass==2, 1), score(trueclass==2, 2));
+scatter(score(trueclass==3, 1), score(trueclass==3, 2));
 axis equal;
 xlabel('FP1');
 ylabel('FP2');

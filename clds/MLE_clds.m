@@ -63,18 +63,23 @@ if (~isempty(a))
 else
   model.mu0 = Ez{1};
 end
-model.Q0 = Ezz{1} - Ez{1} * Ez{1}';
-if (any(strcmp('DiagQ0', varargin)))  
-  model.Q0 = diag(real(diag(model.Q0)));
-elseif (any(strcmp('FullQ', varargin)))
-  % do nothing
-  %diag(model.Q0) = real(diag(model.Q0));
+a = find(strcmp('model.Q0', varargin), 1);
+if (~isempty(a))
+  model.Q0 = varargin{a+1};
 else
-  model.Q0 = diag(repmat(real(trace(model.Q0) / H), H, 1));
+  model.Q0 = Ezz{1} - Ez{1} * Ez{1}';
+  if (any(strcmp('DiagQ0', varargin)))
+    model.Q0 = diag(real(diag(model.Q0)));
+  elseif (any(strcmp('FullQ', varargin)))
+    % do nothing
+    %diag(model.Q0) = real(diag(model.Q0));
+  else
+    model.Q0 = diag(repmat(real(trace(model.Q0) / H), H, 1));
+  end
 end
 
-TAG = true;
-    
+
+TAG = true; 
 % full rank version
 a = find(strcmp('model.A', varargin), 1);
 if (isempty(a))  
@@ -86,15 +91,20 @@ else
   TAG = false; % no need to do iteration
 end
 
-if (any(strcmp('DiagQ', varargin)))
-  model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1)));
-elseif (any(strcmp('FullQ', varargin)))
-  tmp = model.A * Sz1z';
-  model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
-  %diag(model.Q) = real(diag(model.Q));
+a = find(strcmp('model.Q', varargin), 1);
+if (~isempty(a))
+  model.Q = varargin{a+1};
 else
-  delta = (trace(Szz) - trace(Ezz{1}) - 2 * trace(model.A * Sz1z') + trace(model.A * SzzN * model.A')) / (N-1) / H;
-  model.Q = diag(repmat(real(delta), H, 1));
+  if (any(strcmp('DiagQ', varargin)))
+    model.Q = real(diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1)));
+  elseif (any(strcmp('FullQ', varargin)))
+    tmp = model.A * Sz1z';
+    model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
+    %diag(model.Q) = real(diag(model.Q));
+  else
+    delta = (trace(Szz) - trace(Ezz{1}) - 2 * trace(model.A * Sz1z') + trace(model.A * SzzN * model.A')) / (N-1) / H;
+    model.Q = diag(repmat(real(delta), H, 1));
+  end
 end
 
 if (TAG)
