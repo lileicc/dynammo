@@ -86,14 +86,12 @@ for i = 1:N
   delta = X(:, i) - u_c;
   u{i} = u{i} + K * delta;
   UU{i} = (Ih - K * model.C) * P{i};
-  UU{i}(Im ~= 0) = abs(UU{i}(Im ~= 0)); % ensure it is PSD
+  UU{i}(Ih ~= 0) = abs(UU{i}(Ih ~= 0)); % ensure it is PSD
   if (LOGLI)
     %sigma_c = model.C * P{i} * model.C' + model.R;
-    invSig = (P{i} * model.C') \ K;
+    invSig = inv(model.C * P{i} * model.C' + model.R);
+    %invSig = (P{i} * model.C') \ K;
     invSig(Im ~= 0) = abs(invSig(Im ~= 0));
-    if (sum(diag(invSig)) < eps)
-      invSig = inv(model.C * P{i} * model.C' + model.R);
-    end
     posDef = real(delta' * invSig * delta);    
     if (posDef < 0)
       warning('det of not positive definite < 0');

@@ -17,7 +17,7 @@ function [ model, LL ] = learn_clds(X, varargin)
 %   variables.
 %   'MaxIter', followed by an integer indicating the number of max
 %   iterations.
-%   'Model0', followed by a struct denoting a model to start with (see
+%   'Model', followed by a struct denoting a model to start with (see
 %   below).
 %  covariance options:
 %   'DiagQ0', if presented, will learn a diagonal covariance Q0

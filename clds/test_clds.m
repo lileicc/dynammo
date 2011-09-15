@@ -110,6 +110,12 @@ ylabel('spectrum');
 xlabel('frequency');
 xlim([0, 1]);
 
+figure;
+colormap colorGray;
+semilogx(LL);
+ylabel('log-likelihood');
+xlabel('iteration');
+
 
 
 %% test on the mocap data
@@ -138,17 +144,62 @@ X33 = motion_dim{33}(:, classind);
 
 
 X = X33';
+X = X33(1:50, :)';
+X = X33(1:100, :)';
+
 trueclass = class(classind);
 %[group, features, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 8, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
+[model_train, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
+features = abs(model_train.C);
+pred = kmeans(features, 2);
+cm = confusionmat(pred, trueclass);
+ce = condentropy(pred, trueclass);
+
+% check PLiF
+[Feature, P, D, mu0, zhat, model] = fingerprint(X, 'Hidden', 8, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
+ 
+% use PLiF to initialize
+model0.mu0 = mu0;
+H = length(mu0);
+model0.Q0 = eye(H) * 0.01;
+model0.A = diag(D);
+model0.Q = model0.Q0;
+model0.C = P + rand(size(P));
+model0.R = eye(size(X, 1)) * 0.01;
+[model_train1, LL1] = learn_clds(X, 'Model', model0, 'Hidden', 8, 'MaxIter', 100);
+features1 = abs(model_train1.C(:, 1:end));
+%pred1 = kmeans(features1, 2, 'replicates', 10);
+pred1 = kmeans(features1, 2, 'distance', 'correlation', 'replicates', 10, 'Options', statset('Display','final'));
+cm1 = confusionmat(pred1, trueclass);
+ce1 = condentropy(pred1, trueclass);
+
+[coeff1, score1] = princomp(features1(:, 1:end), 'econ');
+pred1_pca = kmeans(score1(:,1:2), 2, 'replicates', 10);
+cm1_pca = confusionmat(pred1_pca, trueclass);
+ce1_pca = condentropy(pred1_pca, trueclass);
+
+
+figure;
+hold all;
+scatter(features1(trueclass==2, 1), features1(trueclass==2, 2));
+scatter(features1(trueclass==3, 1), features1(trueclass==3, 2));
+
+figure;
+hold all;
+scatter(score1(trueclass==2, 1), score1(trueclass==2, 2), 'd', 'DisplayName', 'walking');
+scatter(score1(trueclass==3, 1), score1(trueclass==3, 2), 'r*', 'DisplayName', 'running');
+legend('show', 'Location', 'best');
+export_fig 'scatter-mocap-clds-100.pdf' '-pdf'
+
 for i = 1 : 10
   model{i} = learn_clds(X, 'Hidden', i, 'MaxIter', 10000);
   features{i} = abs(model{i}.C);
-  pred{i} = kmeans(features{i}, 2);
-  cm{i} = confusionmat(trueclass, pred{i});
-  ce{i} = condentropy(trueclass, pred{i});
-  [coeff, score] = princomp(features{i}, 'econ');
-  pred1 = kmeans(score(:,1:2), 2);
-  cm1 = confusionmat(trueclass, pred1);
+  pred{i} = kmeans(features{i}, 2, 'replicates', 5);
+  cm{i} = confusionmat(pred{i}, trueclass);
+  ce{i} = condentropy(pred{i}, trueclass);
+  %[coeff, score] = princomp(features{i}, 'econ');
+  %pred1 = kmeans(score(:,1:2), 2);
+  %cm1{i} = confusionmat(pred1, trueclass);
 end
 figure;
 hold all;
@@ -183,12 +234,182 @@ for i = 1:m;
 end
 
 %% for baseline: PCA + kmean
-[coeff, score] = princomp(X);
+[coeff, score] = princomp(X, 'econ');
 figure;
 hold all;
-scatter(score(trueclass==2, 1), score(trueclass==2, 2), 'bo');
+scatter(score(trueclass==2, 1), score(trueclass==2, 2), 'bd');
 scatter(score(trueclass==3, 1), score(trueclass==3, 2), 'r*');
 axis equal;
 xlabel('PC1');
 ylabel('PC2');
+pred_pca = kmeans(score(:, 1:2), 2, 'distance', 'correlation', 'replicates', 10);
+cm_pca = confusionmat(pred_pca, trueclass);
+ce_pca = condentropy(pred_pca, trueclass);
+
+
+%% FFT
+xft = fft(X');
+xft = xft';
+[coeff_ft, score_ft] = princomp(abs(xft));
+figure;
+hold all;
+scatter(score_ft(trueclass==2, 1), score_ft(trueclass==2, 2), 'd', 'DisplayName', 'walking');
+scatter(score_ft(trueclass==3, 1), score_ft(trueclass==3, 2), 'r*', 'DisplayName', 'running');
+legend('show', 'Location', 'best');
+
+% aditya's version
+y = X';
+L = length(y);
+xx = abs(fft(y, [], 1));
+freq = (1:L/2)/L; 
+
+% Plot single-sided amplitude spectrum.
+X1 = freq;
+Y1 = xx(1:floor(L/2), :);
+
+% direct SVD/PCA, then Kmeans using cityblock distance.
+[coeff_ft, score_ft] = princomp(Y1', 'econ');
+ggg = kmeans(score_ft(:, 1:2), 2, 'Distance', 'correlation', 'Display','final', 'replicates', 10);
+%ggg = kmeans(score(:, 1:2), 2, 'Display','final', 'replicates', 10);
+cm2 = confusionmat(ggg, trueclass);
+cmh2 = condentropy(cm2);
+
+figure;
+hold all;
+scatter(score_ft(trueclass==2, 1), score_ft(trueclass==2, 2), 'd', 'DisplayName', 'walking');
+scatter(score_ft(trueclass==3, 1), score_ft(trueclass==3, 2), 'r*', 'DisplayName', 'running');
+%legend('show', 'Location', 'best');
+export_fig 'scatter-mocap-fft-100.pdf' '-pdf'
+
+
+%% LDS
+[model_lds, LL_lds ] = learn_lds(X, 'Hidden', 8, 'MaxIter', 100);
+[coeff_lds, score_lds] = princomp(model_lds.C, 'econ');
+pred_lds = kmeans(score_lds(:,1:2), 2, 'distance', 'correlation');
+cm_lds= confusionmat(pred_lds, trueclass);
+ce_lds = condentropy(pred_lds, trueclass);
+
+figure;
+hold all;
+scatter(score_lds(trueclass==2, 1), score_lds(trueclass==2, 2), 'bd');
+scatter(score_lds(trueclass==3, 1), score_lds(trueclass==3, 2), 'r*');
+
+export_fig 'scatter-mocap-lds.pdf' '-pdf'
+
+
+%% DTW
+[f_dtw, cm_dtw, cmh_dtw] = dtw_cluster(X', trueclass);
+
+
+
+%% test on the amc data
+clear;
+load('../motion35-amc-labeled.mat');
+classind = [find(classlabel==1); find(classlabel==2)];
+% 1 = walking, 2 = running
+classind = classind(randperm(length(classind)));
+
+% build data in X
+% rfoot
+X52 = mocap35_dim{52}(:, classind);
+
+
+X = X52';
+X = X52(1:60, :)';
+
+trueclass = classlabel(classind);
+%[group, features, entrop, P, D, mu0] = fingerprint_classify(X, 'Hidden', 8, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
+[model_train, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 100);
+features = abs(model_train.C);
+pred = kmeans(features, 2);
+cm = confusionmat(pred, trueclass);
+ce = condentropy(pred, trueclass);
+
+% check PLiF
+H = 4;
+[Feature, P, D, mu0, zhat, model] = fingerprint(X, 'Hidden', H, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
+ 
+% use PLiF to initialize
+model0.mu0 = mu0;
+H = length(mu0);
+model0.Q0 = eye(H) * 0.01;
+model0.A = diag(D);
+model0.Q = model0.Q0;
+model0.C = P;
+model0.R = eye(size(X, 1)) * 0.01;
+[model_train1, LL1] = learn_clds(X, 'Model', model0, 'Hidden', H, 'MaxIter', 100);
+features1 = abs(model_train1.C(:, 3:end));
+pred1 = kmeans(features1, 2, 'replicates', 10);
+%pred1 = kmeans(features1, 2, 'distance', 'correlation', 'replicates', 10, 'Options', statset('Display','final'));
+cm1 = confusionmat(pred1, trueclass);
+ce1 = condentropy(pred1, trueclass);
+
+[coeff1, score1] = princomp(features1(:, 1:end), 'econ');
+pred1_pca = kmeans(score1(:,1:2), 2, 'replicates', 10);
+cm1_pca = confusionmat(pred1_pca, trueclass);
+ce1_pca = condentropy(pred1_pca, trueclass);
+
+
+figure;
+hold all;
+scatter(score1(trueclass==1, 1), score1(trueclass==1, 2), 'd', 'DisplayName', 'walking');
+scatter(score1(trueclass==2, 1), score1(trueclass==2, 2), 'r*', 'DisplayName', 'running');
+legend('show', 'Location', 'best');
+export_fig 'scatter-mocap35-52-clds.pdf' '-pdf'
+
+%% FFT for amc data
+y = X';
+L = length(y);
+xx = abs(fft(y, [], 1));
+freq = (1:L/2)/L; 
+
+% Plot single-sided amplitude spectrum.
+X1 = freq;
+Y1 = xx(1:floor(L/2), :);
+
+% direct SVD/PCA, then Kmeans using cityblock distance.
+[coeff_ft, score_ft] = princomp(Y1', 'econ');
+%ggg = kmeans(score_ft(:, 1:2), 2, 'Distance', 'correlation', 'Display','final', 'replicates', 1);
+ggg = kmeans(score_ft(:, 1:2), 2, 'Display','final', 'replicates', 10);
+cm2 = confusionmat(ggg, trueclass);
+cmh2 = condentropy(cm2);
+
+figure;
+hold all;
+scatter(score_ft(trueclass==1, 1), score_ft(trueclass==1, 2), 'd', 'DisplayName', 'walking');
+scatter(score_ft(trueclass==2, 1), score_ft(trueclass==2, 2), 'r*', 'DisplayName', 'running');
+%legend('show', 'Location', 'best');
+export_fig 'scatter-mocap-fft-100.pdf' '-pdf'
+
+%% PCA + kmeans on amc data
+[coeff, score] = princomp(X, 'econ');
+figure;
+hold all;
+scatter(score(trueclass==1, 1), score(trueclass==1, 2), 'bd');
+scatter(score(trueclass==2, 1), score(trueclass==2, 2), 'r*');
+axis equal;
+xlabel('PC1');
+ylabel('PC2');
+pred_pca = kmeans(score(:, 1:2), 2,  'replicates', 10);
+cm_pca = confusionmat(pred_pca, trueclass);
+ce_pca = condentropy(pred_pca, trueclass);
+
+
+%% LDS
+[model_lds, LL_lds ] = learn_lds(X, 'Hidden', 4, 'MaxIter', 100);
+[coeff_lds, score_lds] = princomp(model_lds.C, 'econ');
+pred_lds = kmeans(score_lds(:,1:2), 2);
+cm_lds= confusionmat(pred_lds, trueclass);
+ce_lds = condentropy(pred_lds, trueclass);
+
+figure;
+hold all;
+scatter(score_lds(trueclass==2, 1), score_lds(trueclass==2, 2), 'bd');
+scatter(score_lds(trueclass==3, 1), score_lds(trueclass==3, 2), 'r*');
+
+export_fig 'scatter-mocap-lds.pdf' '-pdf'
+
+
+%% DTW
+[f_dtw, cm_dtw, cmh_dtw] = dtw_cluster(X', trueclass);
 
