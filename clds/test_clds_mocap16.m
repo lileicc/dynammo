@@ -1,7 +1,7 @@
+clear;
 DATAFILE='../motion16-labeled.1.mat';
 
 %% test on the mocap data
-clear;
 load(DATAFILE);
 classind = [find(class==2); find(class==3)];
 % 2 = walking, 3 = running
@@ -24,8 +24,8 @@ X = X33';
 [model_train, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
 features = abs(model_train.C);
 pred = kmeans(features, 2, 'distance', 'correlation', 'replicates', 10);
-cm = confusionmat(pred, trueclass);
-ce = condentropy(pred, trueclass);
+cm = confusionmat(trueclass, pred);
+ce = condentropy(trueclass, pred);
 
 disp('CLDS conditional entropy');
 disp(ce);
@@ -52,8 +52,8 @@ ylabel('PC2');
 export_fig 'scatter-mocap16-rfootz-pca.pdf' '-pdf'
 
 pred_pca = kmeans(score(:, 1:2), 2, 'distance', 'correlation', 'replicates', 10);
-cm_pca = confusionmat(pred_pca, trueclass);
-ce_pca = condentropy(pred_pca, trueclass);
+cm_pca = confusionmat(trueclass, pred_pca);
+ce_pca = condentropy(trueclass, pred_pca);
 
 disp('PCA+Kmeans conditional entropy');
 disp(ce_pca);
@@ -63,8 +63,8 @@ xft = fft(X');
 xft = xft';
 [coeff_ft, score_ft] = princomp(abs(xft));
 ggg = kmeans(score_ft(:, 1:2), 2, 'Distance', 'correlation', 'Display','final', 'replicates', 10);
-cm_fft = confusionmat(ggg, trueclass);
-ce_fft = condentropy(cm2);
+cm_fft = confusionmat(trueclass, ggg);
+ce_fft = condentropy(cm_fft);
 
 figure;
 hold all;
@@ -81,8 +81,8 @@ disp(ce_fft);
 [model_lds, LL_lds ] = learn_lds(X, 'Hidden', 8, 'MaxIter', 100);
 [coeff_lds, score_lds] = princomp(model_lds.C, 'econ');
 pred_lds = kmeans(score_lds(:,1:2), 2, 'distance', 'correlation');
-cm_lds= confusionmat(pred_lds, trueclass);
-ce_lds = condentropy(pred_lds, trueclass);
+cm_lds= confusionmat(trueclass, pred_lds);
+ce_lds = condentropy(trueclass, pred_lds);
 
 figure;
 hold all;

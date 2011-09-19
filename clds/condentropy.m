@@ -1,6 +1,9 @@
 function [h] = condentropy(a, b)
 %CONDENTROPY  Estimates the conditional entropy from confusion matrix
-%          H(column|row)
+%          H(column | row)
+%
+% To be used as a metric for clustering, use H( prediction | true labels )
+% a = prediction, b = true labels
 %
 % [h] = condentropy(a) computes the conditional entropy using a as
 % confusion matrix

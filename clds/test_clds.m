@@ -152,8 +152,8 @@ trueclass = class(classind);
 [model_train, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
 features = abs(model_train.C);
 pred = kmeans(features, 2);
-cm = confusionmat(pred, trueclass);
-ce = condentropy(pred, trueclass);
+cm = confusionmat(trueclass, pred);
+ce = condentropy(trueclass, pred);
 
 % check PLiF
 [Feature, P, D, mu0, zhat, model] = fingerprint(X, 'Hidden', 8, 'MaxIter', 100, 'Class', trueclass, 'IsotropicQ', 'IsotropicR', 'IsotropicQ0');
@@ -170,13 +170,13 @@ model0.R = eye(size(X, 1)) * 0.01;
 features1 = abs(model_train1.C(:, 1:end));
 %pred1 = kmeans(features1, 2, 'replicates', 10);
 pred1 = kmeans(features1, 2, 'distance', 'correlation', 'replicates', 10, 'Options', statset('Display','final'));
-cm1 = confusionmat(pred1, trueclass);
-ce1 = condentropy(pred1, trueclass);
+cm1 = confusionmat(trueclass, pred1);
+ce1 = condentropy(trueclass, pred1);
 
 [coeff1, score1] = princomp(features1(:, 1:end), 'econ');
 pred1_pca = kmeans(score1(:,1:2), 2, 'replicates', 10);
-cm1_pca = confusionmat(pred1_pca, trueclass);
-ce1_pca = condentropy(pred1_pca, trueclass);
+cm1_pca = confusionmat(trueclass, pred1_pca);
+ce1_pca = condentropy(trueclass, pred1_pca);
 
 
 figure;
@@ -195,8 +195,8 @@ for i = 1 : 10
   model{i} = learn_clds(X, 'Hidden', i, 'MaxIter', 10000);
   features{i} = abs(model{i}.C);
   pred{i} = kmeans(features{i}, 2, 'replicates', 5);
-  cm{i} = confusionmat(pred{i}, trueclass);
-  ce{i} = condentropy(pred{i}, trueclass);
+  cm{i} = confusionmat(trueclass, pred{i});
+  ce{i} = condentropy(trueclass, pred{i});
   %[coeff, score] = princomp(features{i}, 'econ');
   %pred1 = kmeans(score(:,1:2), 2);
   %cm1{i} = confusionmat(pred1, trueclass);
@@ -243,8 +243,8 @@ axis equal;
 xlabel('PC1');
 ylabel('PC2');
 pred_pca = kmeans(score(:, 1:2), 2, 'distance', 'correlation', 'replicates', 10);
-cm_pca = confusionmat(pred_pca, trueclass);
-ce_pca = condentropy(pred_pca, trueclass);
+cm_pca = confusionmat(trueclass, pred_pca);
+ce_pca = condentropy(trueclass, pred_pca);
 
 
 %% FFT
@@ -271,7 +271,7 @@ Y1 = xx(1:floor(L/2), :);
 [coeff_ft, score_ft] = princomp(Y1', 'econ');
 ggg = kmeans(score_ft(:, 1:2), 2, 'Distance', 'correlation', 'Display','final', 'replicates', 10);
 %ggg = kmeans(score(:, 1:2), 2, 'Display','final', 'replicates', 10);
-cm2 = confusionmat(ggg, trueclass);
+cm2 = confusionmat(trueclass, ggg);
 cmh2 = condentropy(cm2);
 
 figure;
@@ -286,8 +286,8 @@ export_fig 'scatter-mocap-fft-100.pdf' '-pdf'
 [model_lds, LL_lds ] = learn_lds(X, 'Hidden', 8, 'MaxIter', 100);
 [coeff_lds, score_lds] = princomp(model_lds.C, 'econ');
 pred_lds = kmeans(score_lds(:,1:2), 2, 'distance', 'correlation');
-cm_lds= confusionmat(pred_lds, trueclass);
-ce_lds = condentropy(pred_lds, trueclass);
+cm_lds= confusionmat(trueclass, pred_lds);
+ce_lds = condentropy(trueclass, pred_lds);
 
 figure;
 hold all;
@@ -322,8 +322,8 @@ trueclass = classlabel(classind);
 [model_train, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 100);
 features = abs(model_train.C);
 pred = kmeans(features, 2);
-cm = confusionmat(pred, trueclass);
-ce = condentropy(pred, trueclass);
+cm = confusionmat(trueclass, pred);
+ce = condentropy(trueclass, pred);
 
 % check PLiF
 H = 4;
@@ -341,13 +341,13 @@ model0.R = eye(size(X, 1)) * 0.01;
 features1 = abs(model_train1.C(:, 3:end));
 pred1 = kmeans(features1, 2, 'replicates', 10);
 %pred1 = kmeans(features1, 2, 'distance', 'correlation', 'replicates', 10, 'Options', statset('Display','final'));
-cm1 = confusionmat(pred1, trueclass);
-ce1 = condentropy(pred1, trueclass);
+cm1 = confusionmat(trueclass, pred1);
+ce1 = condentropy(trueclass, pred1);
 
 [coeff1, score1] = princomp(features1(:, 1:end), 'econ');
 pred1_pca = kmeans(score1(:,1:2), 2, 'replicates', 10);
-cm1_pca = confusionmat(pred1_pca, trueclass);
-ce1_pca = condentropy(pred1_pca, trueclass);
+cm1_pca = confusionmat(trueclass, pred1_pca);
+ce1_pca = condentropy(trueclass, pred1_pca);
 
 
 figure;
@@ -371,7 +371,7 @@ Y1 = xx(1:floor(L/2), :);
 [coeff_ft, score_ft] = princomp(Y1', 'econ');
 %ggg = kmeans(score_ft(:, 1:2), 2, 'Distance', 'correlation', 'Display','final', 'replicates', 1);
 ggg = kmeans(score_ft(:, 1:2), 2, 'Display','final', 'replicates', 10);
-cm2 = confusionmat(ggg, trueclass);
+cm2 = confusionmat(trueclass, ggg);
 cmh2 = condentropy(cm2);
 
 figure;
@@ -391,16 +391,16 @@ axis equal;
 xlabel('PC1');
 ylabel('PC2');
 pred_pca = kmeans(score(:, 1:2), 2,  'replicates', 10);
-cm_pca = confusionmat(pred_pca, trueclass);
-ce_pca = condentropy(pred_pca, trueclass);
+cm_pca = confusionmat(trueclass, pred_pca);
+ce_pca = condentropy(trueclass, pred_pca);
 
 
 %% LDS
 [model_lds, LL_lds ] = learn_lds(X, 'Hidden', 4, 'MaxIter', 100);
 [coeff_lds, score_lds] = princomp(model_lds.C, 'econ');
 pred_lds = kmeans(score_lds(:,1:2), 2);
-cm_lds= confusionmat(pred_lds, trueclass);
-ce_lds = condentropy(pred_lds, trueclass);
+cm_lds= confusionmat(trueclass, pred_lds);
+ce_lds = condentropy(trueclass, pred_lds);
 
 figure;
 hold all;
