@@ -21,9 +21,11 @@ X = X33';
 %X = X33(1:50, :)';
 %X = X33(1:100, :)';
 
-[model_clds, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
+%[model_clds, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
+[model_clds, LL] = learn_clds(X, 'Hidden', 8, 'MaxIter', 100);
 features_clds = abs(model_clds.C);
-pred = kmeans(features_clds, 2, 'distance', 'correlation', 'replicates', 10);
+%pred = kmeans(features_clds, 2, 'distance', 'correlation', 'replicates', 10);
+pred = kmeans(features_clds, 2, 'replicates', 10);
 cm_clds = confusionmat(trueclass, pred);
 ce_clds = condentropy(trueclass, pred);
 
@@ -51,7 +53,8 @@ xlabel('PC1');
 ylabel('PC2');
 export_fig 'scatter-mocap16-rfootz-pca.pdf' '-pdf'
 
-pred_pca = kmeans(score(:, 1:2), 2, 'distance', 'correlation', 'replicates', 10);
+%pred_pca = kmeans(score(:, 1:2), 2, 'distance', 'correlation', 'replicates', 10);
+pred_pca = kmeans(score(:, 1:2), 2, 'replicates', 10);
 cm_pca = confusionmat(trueclass, pred_pca);
 ce_pca = condentropy(trueclass, pred_pca);
 
@@ -62,7 +65,8 @@ disp(ce_pca);
 xft = fft(X');
 xft = xft';
 [coeff_ft, score_ft] = princomp(abs(xft));
-ggg = kmeans(score_ft(:, 1:2), 2, 'Distance', 'correlation', 'Display','final', 'replicates', 10);
+%ggg = kmeans(score_ft(:, 1:2), 2, 'Distance', 'correlation', 'Display','final', 'replicates', 10);
+ggg = kmeans(score_ft(:, 1:2), 2, 'Display','final', 'replicates', 10);
 cm_fft = confusionmat(trueclass, ggg);
 ce_fft = condentropy(cm_fft);
 
@@ -78,9 +82,11 @@ disp(ce_fft);
 
 
 %% LDS
+addpath('../dynammo');
 [model_lds, LL_lds ] = learn_lds(X, 'Hidden', 8, 'MaxIter', 100);
 [coeff_lds, score_lds] = princomp(model_lds.C, 'econ');
-pred_lds = kmeans(score_lds(:,1:2), 2, 'distance', 'correlation');
+%pred_lds = kmeans(score_lds(:,1:2), 2, 'distance', 'correlation', 'Display','final', 'replicates', 10);
+pred_lds = kmeans(score_lds(:,1:2), 2, 'Display','final', 'replicates', 10);
 cm_lds= confusionmat(trueclass, pred_lds);
 ce_lds = condentropy(trueclass, pred_lds);
 
