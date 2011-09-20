@@ -19,7 +19,7 @@ X33 = motion_dim{33}(:, classind);  % rfoot.z
 
 X = X33';
 %X = X33(1:50, :)';
-%X = X33(1:100, :)';
+X = X33(1:100, :)';
 
 [model_train, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
 features = abs(model_train.C);
