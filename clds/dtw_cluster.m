@@ -14,7 +14,7 @@ end
 % direct SVD/PCA, then Kmeans using euclidean.
 [coeff, score] = princomp(Y1', 'econ');
 ggg = kmeans(score(:, 1:2), 2, 'Display','final', 'replicates', 10);
-cm2 = confusionmat(ggg, class);
+cm2 = confusionmat(class, ggg);
 cmh2 = condentropy(cm2);
 
 % Create figure

@@ -19,18 +19,18 @@ X33 = motion_dim{33}(:, classind);  % rfoot.z
 
 X = X33';
 %X = X33(1:50, :)';
-X = X33(1:100, :)';
+%X = X33(1:100, :)';
 
-[model_train, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
-features = abs(model_train.C);
-pred = kmeans(features, 2, 'distance', 'correlation', 'replicates', 10);
-cm = confusionmat(trueclass, pred);
-ce = condentropy(trueclass, pred);
+[model_clds, LL] = learn_clds(X, 'Hidden', 4, 'MaxIter', 10000);
+features_clds = abs(model_clds.C);
+pred = kmeans(features_clds, 2, 'distance', 'correlation', 'replicates', 10);
+cm_clds = confusionmat(trueclass, pred);
+ce_clds = condentropy(trueclass, pred);
 
 disp('CLDS conditional entropy');
-disp(ce);
+disp(ce_clds);
 
-[coeff1, score1] = princomp(features(:, 1:end), 'econ');
+[coeff1, score1] = princomp(features_clds(:, 1:end), 'econ');
 
 figure;
 hold all;
