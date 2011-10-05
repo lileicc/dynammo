@@ -123,5 +123,5 @@ good = good == 0;
 return
 
 function current_gs_path_str = current_gs_path
-current_gs_path_str = 'gs';
+current_gs_path_str = 'gswin32c.exe';
 return
