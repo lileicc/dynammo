@@ -5,6 +5,8 @@ function [Ez, Ezz, Ez1z] = backward(u, UU, P, model)
 % Ezz: cell 1 * N with each H * H, E[ z_n * z_n' | x_1...x_N ]
 % Ezz1: cell (N-1) * 1 with each H * H, E[ z_n * z_n+1 | x_1 ...x_N ]
 %
+% see also learn_clds.m
+%
 % $Author$@cs.cmu.edu
 % $Date$
 % $Rev$

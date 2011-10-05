@@ -23,7 +23,7 @@ function [u, UU, P, logli] = forward(X, model, varargin)
 %   P is cell 1 * N, each with a matrix H * H
 %   logli: log-likelihood of the data under the current model. will
 %
-% see also learn_slds.m
+% see also learn_clds.m
 %
 % $Author$@cs.cmu.edu
 % $Date$

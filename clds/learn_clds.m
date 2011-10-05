@@ -8,6 +8,11 @@ function [ model, LL ] = learn_clds(X, varargin)
 % w_n ~ CN(0, Q)
 % v_n ~ CN(0, R)
 % here A can be diagonal
+%
+% Please see more details in 
+%   Lei Li and B. Aditya Prakash (2011), 
+%   "Time Series Clustering: Complex is Simpler!", 
+%   In Proceedings of the 28th International Conference on Machine learning.
 % 
 % Args:
 %   X: M * N matrix, M is number of sequences, N is the time duration.
@@ -89,7 +94,6 @@ if (isempty(a))
   model.Q = eye(H, H) * 1E-2;
   model.R = eye(M, M) * 1E-2;
   model.mu0 = ones(H, 1) + complex(randn(H, 1), randn(H, 1));
-  %model.mu0 = zeros(H, 1);
   model.Q0 = model.Q;
 else
   model = varargin{a+1};

@@ -23,7 +23,7 @@ t = (1:N)';
 a = zeros(N, 2);
 f = 1 / 100;
 t1 = 2 * pi * f * t;
-b = [sin(2 * pi * (1/100) * t) cos(2 * pi * (1/100) * t) sin(2 * pi * (1/98) * t + pi/6)];
+b = [sin(2 * pi * (1/100) * t) cos(2 * pi * (1/100) * t) sin(2 * pi * (1/100) * t + pi/6)];
 
 f1 = 1 / 110;
 f2 = 1 / 30;
@@ -46,7 +46,7 @@ end
 export_fig('sin_data.pdf', '-pdf');
 
 
-model_train = learn_clds(X, 'Hidden', 4, 'MaxIter', 100);
+model_train = learn_clds(X, 'Hidden', 6, 'MaxIter', 100);
 
 score = abs(model_train.C);
 figure;
