@@ -1,0 +1,2 @@
+demo:
+	matlab -r demo
