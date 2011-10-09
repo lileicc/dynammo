@@ -3,7 +3,7 @@ function [h] = condentropy(a, b)
 %          H(column | row)
 %
 % To be used as a metric for clustering, use H( prediction | true labels )
-% a = prediction, b = true labels
+% a = true label, b = prediction
 %
 % [h] = condentropy(a) computes the conditional entropy using a as
 % confusion matrix

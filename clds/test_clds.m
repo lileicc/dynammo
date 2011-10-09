@@ -6,7 +6,6 @@ figure;
 plot(Y');
 
 model_train = learn_clds(Y, 'Hidden', 2, 'MaxIter', 1000);
-model_train1 = learn_clds(Y, 'Hidden', 2, 'MaxIter', 1000);
 
 Xhat = sample_clds(model_train, 100);
 Yhat = real(Xhat);
