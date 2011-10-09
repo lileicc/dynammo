@@ -12,7 +12,8 @@ CLDSFILE=backward.m \
  dtw_cluster.m \
  test_clds_synthetic.m \
  test_clds_mocap16.m \
- test_clds_mocap35.m
+ test_clds_mocap35.m \
+ colorGray.m 
 
 demo:
 	matlab -r demo
