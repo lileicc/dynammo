@@ -1,3 +1,8 @@
+% sample code to generate features on mocap data and compare with other
+% methods
+% use with caution
+% modify only when you understand each step
+
 clear;
 load('../motion35-amc-labeled.mat');
 classind = [find(classlabel==1); find(classlabel==2)];

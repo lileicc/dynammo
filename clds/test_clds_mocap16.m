@@ -1,3 +1,8 @@
+% sample code to generate features on mocap data and compare with other
+% methods
+% use with caution
+% modify only when you understand each step
+
 clear;
 DATAFILE='../motion16-labeled.1.mat';
 

@@ -6,7 +6,13 @@ CLDSFILE=backward.m \
  condentropy.m \
  demo.m \
  makefile \
- readme.txt
+ readme.txt \
+ sample_clds.m \
+ dtw.m \
+ dtw_cluster.m \
+ test_clds_synthetic.m \
+ test_clds_mocap16.m \
+ test_clds_mocap35.m
 
 demo:
 	matlab -r demo
