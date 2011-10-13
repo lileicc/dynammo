@@ -2,19 +2,19 @@ OTHERFILE=readme \
  makefile \
  test_fingerprint_classify_mocap.m 
 
-DYNAMMOFILE=backward.m \
- compress_dynammo.m \
- compress_pca.m \
- cummin.m \
- decompress_dynammo.m \
- demo_dynammo.m \
- estimate_missing.m \
- forward.m \
- learn_lds.m \
- learn_lds_dynammo.m \
- linear_interp.m \
- logdet.m \
- MLE_lds.m  
+DYNAMMOFILE=../dynammo/backward.m \
+ ../dynammo/compress_dynammo.m \
+ ../dynammo/compress_pca.m \
+ ../dynammo/cummin.m \
+ ../dynammo/decompress_dynammo.m \
+ ../dynammo/demo_dynammo.m \
+ ../dynammo/estimate_missing.m \
+ ../dynammo/forward.m \
+ ../dynammo/learn_lds.m \
+ ../dynammo/learn_lds_dynammo.m \
+ ../dynammo/linear_interp.m \
+ ../dynammo/logdet.m \
+ ../dynammo/MLE_lds.m  
 
 PLIFFILE=condentropy.m \
  fingerprint.m \
@@ -28,8 +28,13 @@ demo:
 
 zip: tar
 
-tar: ${DYNAMMOFILE} ${PLIFFILE}
-	zip plif.zip ${DYNAMMOFILE} ${PLIFFILE}
+tar: ${DYNAMMOFILE} ${PLIFFILE} ${OTHERFILE}
+	mkdir plif
+	cp ${DYNAMMOFILE} plif/
+	cp ${PLIFFILE} plif/
+	cp ${OTHERFILE} plif/
+	zip -r plif.zip plif
+	rm -r -f plif
 
 sync: 
 	svn up

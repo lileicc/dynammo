@@ -313,4 +313,3 @@ for i = 1 : size(X, 1)
 end
 a = fft(X(4, :));
 plot(500./(0:499), abs(a));
-xlabel
