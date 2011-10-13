@@ -25,6 +25,8 @@ PLIFFILE=demo.m \
 
 MATLABPATH:=.:../:../dynammo/
 
+REVNUM=`svn info |grep Revision: |cut -c11-`
+
 demo:
 	export MATLABPATH=${MATLABPATH}; matlab -r 'demo'
 
@@ -35,7 +37,7 @@ tar: ${DYNAMMOFILE} ${PLIFFILE} ${OTHERFILE}
 	cp ${DYNAMMOFILE} plif/
 	cp ${PLIFFILE} plif/
 	cp ${OTHERFILE} plif/
-	zip -r plif.zip plif
+	zip -r plif-r${REVNUM}.zip plif
 	rm -r -f plif
 
 sync: 
