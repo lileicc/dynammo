@@ -23,17 +23,22 @@ DYNAMMOPFILE=${DYNAMMOFILE} \
  forward_fly.m \
  learn_lds_dynammop.m
  
+REVNUM:=$(shell svn info |grep Revision: |cut -c11-)
+
+VERSION:=$(shell echo "scale=1;(${REVNUM} - ${REVNUM} % 100) / 1000" | bc)
+
 
 demo:
 	matlab -r demo_dynammo
-	matlab -r demo_dynammop
+#	matlab -r demo_dynammop
 
 zip: tar
 
-tar: ${DYNAMMOFILE} ${DYNAMMOPFILE}
-	zip dynammo${REVISION}.zip ${DYNAMMOFILE}
-	zip dynammop${REVISION}.zip ${DYNAMMOPFILE}
+tar: ${DYNAMMOFILE} ${DYNAMMOPFILE} 
+	zip dynammo-r${REVNUM}.zip ${DYNAMMOFILE}
+	zip dynammop-r${REVNUM}.zip ${DYNAMMOPFILE}
 
 sync: 
 	svn up
 	svn commit -m "commit" 
+	svn up
