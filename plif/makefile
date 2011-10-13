@@ -25,9 +25,9 @@ PLIFFILE=demo.m \
 
 MATLABPATH:=.:../:../dynammo/
 
-REVNUM=`svn info |grep Revision: |cut -c11-`
+REVNUM:=$(shell svn info |grep Revision: |cut -c11-)
 
-VERSION=`echo (${REVNUM} - ${REVNUM} % 100) / 1000 | bc`
+VERSION:=$(shell echo (${REVNUM} - ${REVNUM} % 100) / 1000 | bc)
 
 demo:
 	export MATLABPATH=${MATLABPATH}; matlab -r 'demo'
@@ -35,10 +35,11 @@ demo:
 zip: tar
 
 tar: ${DYNAMMOFILE} ${PLIFFILE} ${OTHERFILE}
-	mkdir plif
+	mkdir -p plif
 	cp ${DYNAMMOFILE} plif/
 	cp ${PLIFFILE} plif/
 	cp ${OTHERFILE} plif/
+	echo ${VERSION}
 	zip -r plif${VERSION}-r${REVNUM}.zip plif
 	rm -r -f plif
 
