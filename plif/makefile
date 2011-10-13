@@ -1,6 +1,7 @@
 OTHERFILE=readme \
  makefile \
- test_fingerprint_classify_mocap.m 
+ test_fingerprint_classify_mocap.m \
+ ../condentropy.m
 
 DYNAMMOFILE=../dynammo/backward.m \
  ../dynammo/compress_dynammo.m \
@@ -16,15 +17,16 @@ DYNAMMOFILE=../dynammo/backward.m \
  ../dynammo/logdet.m \
  ../dynammo/MLE_lds.m  
 
-PLIFFILE=condentropy.m \
+PLIFFILE=demo.m \
  fingerprint.m \
  fingerprint_classify.m \
  fingerprint_compress.m \
  fingerprint_compress_dynamic.m
- 
+
+MATLABPATH:=.:../:../dynammo/
 
 demo:
-	# no demo now
+	export MATLABPATH=${MATLABPATH}; matlab -r 'demo'
 
 zip: tar
 
