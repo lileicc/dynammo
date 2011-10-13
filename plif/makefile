@@ -44,4 +44,5 @@ tar: ${DYNAMMOFILE} ${PLIFFILE} ${OTHERFILE}
 
 sync: 
 	svn up
-	svn commit -m "commit" 
+	svn commit -m "commit"
+	svn up 
