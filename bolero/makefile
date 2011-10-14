@@ -61,3 +61,6 @@ sync:
 	svn up
 	svn commit -m "commit" 
 	svn up
+
+clean:
+	rm *.zip

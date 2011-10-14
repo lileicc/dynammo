@@ -1,6 +1,6 @@
 to run the test file
 run:
-make demo
+test_learn_bone_simulated.m
 
 System requirement:
 Linux, matlab
