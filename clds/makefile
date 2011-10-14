@@ -3,7 +3,7 @@ CLDSFILE=backward.m \
  learn_clds.m \
  logdet.m \
  MLE_clds.m \
- condentropy.m \
+ ../condentropy.m \
  demo.m \
  makefile \
  readme.txt \
@@ -13,15 +13,25 @@ CLDSFILE=backward.m \
  test_clds_synthetic.m \
  test_clds_mocap16.m \
  test_clds_mocap35.m \
- colorGray.m 
+ ../colorGray.m 
+
+MATLABPATH="./:../"
+
+REVNUM:=$(shell svn info |grep Revision: |cut -c11-)
+
+VERSION:=$(shell echo "scale=1;(${REVNUM} - ${REVNUM} % 100) / 1000" | bc)
+
 
 demo:
-	matlab -r demo
+	export MATLABPATH=${MATLABPATH}; matlab -r demo
 
 zip: tar
 
 tar: ${CLDSFILE}
-	zip clds.zip ${CLDSFILE} 
+	mkdir -p clds
+	cp ${CLDSFILE} clds/
+	zip -r clds-r${REVNUM}.zip clds
+	rm -r -f clds/
 
 sync:
 	svn up
