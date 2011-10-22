@@ -1,7 +1,8 @@
 OTHERFILE=readme \
  makefile \
  test_fingerprint_classify_mocap.m \
- ../condentropy.m
+ ../condentropy.m \
+ ../license.txt
 
 DYNAMMOFILE=../dynammo/backward.m \
  ../dynammo/compress_dynammo.m \

@@ -1,7 +1,8 @@
 OTHERFILE=EMSVD.m \
  readme \
  makefile \
- test_lds_fast.m
+ test_lds_fast.m \
+ ../license.txt
 
 DYNAMMOFILE=${OTHERFILE} \
  backward.m \
@@ -35,8 +36,14 @@ demo:
 zip: tar
 
 tar: ${DYNAMMOFILE} ${DYNAMMOPFILE} 
-	zip dynammo-r${REVNUM}.zip ${DYNAMMOFILE}
-	zip dynammop-r${REVNUM}.zip ${DYNAMMOPFILE}
+	mkdir -p dynammo
+	cp ${DYNAMMOFILE} dynammo/
+	mkdir -p dynammop
+	cp ${DYNAMMOPFILE} dynammop/
+	zip dynammo-r${REVNUM}.zip dynammo
+	zip dynammop-r${REVNUM}.zip dynammop
+	rm -r -f dynammo
+	rm -r -f dynammop
 
 sync: 
 	svn up

@@ -13,7 +13,8 @@ CLDSFILE=backward.m \
  test_clds_synthetic.m \
  test_clds_mocap16.m \
  test_clds_mocap35.m \
- ../colorGray.m 
+ ../colorGray.m \
+ ../license.txt
 
 MATLABPATH="./:../"
 

@@ -1,5 +1,6 @@
 OTHERFILE= readme \
- makefile
+ makefile \
+ ../license.txt
 
 DYNAMMOFILE=${OTHERFILE} \
  ../dynammo/backward.m \
