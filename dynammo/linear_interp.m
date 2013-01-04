@@ -11,8 +11,10 @@ function [Y] = linear_interp(X, W)
 % use the matlab internal interpolation method
 % modified by leili (2009-5-5)
 % modified by leili (2010-1-21)
-% modified by leili (2010-4-5), 
+% modified by leili (2010-4-5),
 %   modified the extrapolation to be nearest neighbor
+% modified by leili (2013-1-4),
+%   if the extrapolation part is empty, then no need to extrapolation
 
 M = size(X, 1);
 N = size(X, 2);
@@ -20,22 +22,24 @@ idx = 1:N;
 Y = X;
 for i = 1:M
   obs = W(i, :) ~= 0;
-  if sum(obs) > 1 
-      yy = interp1(idx(obs), X(i, obs), idx(~obs), 'linear');      
-      Y(i, ~obs) = yy;
-      % using neareast neighbor for extrapolation
-      idyy = idx(isnan(Y(i, :)));
+  if sum(obs) > 1
+    yy = interp1(idx(obs), X(i, obs), idx(~obs), 'linear');
+    Y(i, ~obs) = yy;
+    % using neareast neighbor for extrapolation
+    idyy = idx(isnan(Y(i, :)));
+    if ~isempty(idyy)
       yy = interp1(idx(obs), X(i, obs), idyy, 'nearest', 'extrap');
       Y(i, idyy) = yy;
-  else 
-      Y(i, ~obs) = 0;
+    end
+  else
+    Y(i, ~obs) = 0;
   end
 end
 
 
 % $$$ M = size(X,2);
 % $$$ N = size(X,1);
-% $$$ 
+% $$$
 % $$$ Y = X;
 % $$$ for i = 1:M
 % $$$     s = findFirst(W(:, i), 1);
@@ -55,22 +59,22 @@ end
 % $$$             for j = (s+1):(t-1)
 % $$$                 Y(j, i) = X(s, i) + (j - s) * k;
 % $$$             end
-% $$$         else 
+% $$$         else
 % $$$             t = s;
 % $$$             s = olds;
 % $$$             k = (X(t, i) - X(s,i)) / (t-s);
 % $$$             for j = (t+1):N
 % $$$                 Y(j, i) = X(s, i) + (j - s) * k;
-% $$$             end           
+% $$$             end
 % $$$             t = N+1;
 % $$$         end
-% $$$     end 
+% $$$     end
 % $$$ end
-% $$$ 
+% $$$
 % $$$ function [idx] = findFirst(f, a)
 % $$$ while ((a <= size(f, 1)) && (f(a) == 0))
 % $$$     a = a+1;
 % $$$ end
 % $$$ idx = a;
-% $$$ 
-% $$$     
+% $$$
+% $$$
