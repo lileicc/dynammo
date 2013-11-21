@@ -25,6 +25,8 @@ function [model, Xhat, LL, mse] = learn_lds_dynammo(X, varargin)
 %   iterations.
 %   'Model', followed by a struct denoting a model to start with (see
 %   below).
+%   'Fixed', followed by a model with some fieds of (A, C, Q, R, mu0, Q0), 
+%           do not learn, use the provided parameters 
 %   'Observed', followed by a matrix with the same size as X, with binary
 %   values denoting whether X(i,j) is observed(1) or missing (0). If not
 %   provided, will automatically treat 0's in X as missing values.
@@ -61,9 +63,6 @@ function [model, Xhat, LL, mse] = learn_lds_dynammo(X, varargin)
 % X = [x1; x2];
 % X(:, 50:end) = NaN;
 % [model, Xhat, LL] = learn_lds_dynammo(X, 'Hidden', 2, 'MaxIter', 100, 'PlotFun', @(X)plot(X'));
-%
-% derived from old function 
-% function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman_partial(x, H, maxIter)
 %
 % $Author$@cs.cmu.edu
 % $Date$

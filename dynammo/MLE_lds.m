@@ -19,6 +19,8 @@ function [model] = MLE_lds(X, Ez, Ezz, Ez1z, varargin)
 %  Note these options could not coexist for the same covariance matrix.
 %  Default (no args given) the algorithm will learn with diagonal 
 %  and isotropic Q0, Q, R.
+%   'Fixed', followed by a model with some fieds of (A, C, Q, R, mu0, Q0), 
+%           do not learn, use the provided parameters 
 %
 % Returns:
 %   model: a struct with the following attributes:
@@ -30,6 +32,39 @@ function [model] = MLE_lds(X, Ez, Ezz, Ez1z, varargin)
 %     mu0: initial states (also named as z_0 sometimes), H * 1
 %     Q0: initial covariance, H * H
 %
+% $Author$@cs.berkeley.edu
+% $Date$
+% $Rev$
+%
+
+a = find(strcmp('Fixed', varargin), 1);
+LEARNA = true;
+LEARNQ = true;
+LEARNC = true;
+LEARNR = true;
+LEARNMU0 = true;
+LEARNQ0 = true;
+if (~isempty(a))
+  model = varargin{a+1};
+  if (isfield(model, 'A'))
+    LEARNA = false;
+  end
+  if (isfield(model, 'C'))
+    LEARNC = false;
+  end
+  if (isfield(model, 'Q'))
+    LEARNQ = false;
+  end
+  if (isfield(model, 'R'))
+    LEARNR = false;
+  end
+  if (isfield(model, 'mu0'))
+    LEARNMU0 = false;
+  end
+  if (isfield(model, 'Q0'))
+    LEARNQ0 = false;
+  end
+end
 
 N = size(X, 2);
 M = size(X, 1);
@@ -49,36 +84,48 @@ end
 
 SzzN = Szz - Ezz{N}; % sum of E[z, z] from 1 to n-1
 
-model.mu0 = Ez{1};
-model.Q0 = Ezz{1} - Ez{1} * Ez{1}';
-if (any(strcmp('DiagQ0', varargin)))  
-  model.Q0 = diag(diag(model.Q0));
-elseif (any(strcmp('FullQ', varargin)))
-  % do nothing
-else
-  model.Q0 = diag(repmat(trace(model.Q0) / H, H, 1));
+if (LEARNMU0)
+  model.mu0 = Ez{1};
 end
 
-model.A = Sz1z / SzzN;
-if (any(strcmp('DiagQ', varargin)))
-  model.Q = diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1));
-elseif (any(strcmp('FullQ', varargin)))
-  tmp = model.A * Sz1z';
-  model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
-else
-  delta = (trace(Szz) - trace(Ezz{1}) - 2 * trace(model.A * Sz1z') + trace(model.A * SzzN * model.A')) / (N-1) / H;
-  model.Q = diag(repmat(delta, H, 1));
+if (LEARNQ0)
+  model.Q0 = Ezz{1} - Ez{1} * Ez{1}';
+  if (any(strcmp('DiagQ0', varargin)))  
+    model.Q0 = diag(diag(model.Q0));
+  elseif (any(strcmp('FullQ', varargin)))
+    % do nothing
+  else
+    model.Q0 = diag(repmat(trace(model.Q0) / H, H, 1));
+  end
 end
 
-model.C = Sxz / Szz;
+if (LEARNA)
+  model.A = Sz1z / SzzN;
+end
+if (LEARNQ)
+  if (any(strcmp('DiagQ', varargin)))
+    model.Q = diag((diag(Szz) - diag(Ezz{1}) - 2 * diag(model.A * Sz1z') + diag(model.A * SzzN * model.A')) / (N-1));
+  elseif (any(strcmp('FullQ', varargin)))
+    tmp = model.A * Sz1z';
+    model.Q = (Szz - Ezz{1} - tmp - tmp' + model.A * SzzN * model.A') / (N-1);
+  else
+    delta = (trace(Szz) - trace(Ezz{1}) - 2 * trace(model.A * Sz1z') + trace(model.A * SzzN * model.A')) / (N-1) / H;
+    model.Q = diag(repmat(delta, H, 1));
+  end
+end
 
+if (LEARNC)
+  model.C = Sxz / Szz;
+end
 
-if (any(strcmp('DiagR', varargin)))
-  model.R = diag((diag(X * X') - 2 * diag(model.C * Sxz') + diag(model.C * Szz * model.C')) / N);
-elseif (any(strcmp('FullR', varargin)))
-  tmp = model.C * Sxz';
-  model.R = (X * X' - tmp - tmp' + model.C * Szz * model.C') / N;
-else
-  delta = (trace(X * X') - 2 * trace(model.C * Sxz') + trace(model.C * Szz * model.C')) / N / M;
-  model.R = diag(repmat(delta, M, 1));
+if (LEARNR)
+  if (any(strcmp('DiagR', varargin)))
+    model.R = diag((diag(X * X') - 2 * diag(model.C * Sxz') + diag(model.C * Szz * model.C')) / N);
+  elseif (any(strcmp('FullR', varargin)))
+    tmp = model.C * Sxz';
+    model.R = (X * X' - tmp - tmp' + model.C * Szz * model.C') / N;
+  else
+    delta = (trace(X * X') - 2 * trace(model.C * Sxz') + trace(model.C * Szz * model.C')) / N / M;
+    model.R = diag(repmat(delta, M, 1));
+  end
 end

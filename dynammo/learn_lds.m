@@ -19,6 +19,8 @@ function [model, LL] = learn_lds(X, varargin)
 %   iterations.
 %   'Model', followed by a struct denoting a model to start with (see
 %   below).
+%   'Fixed', followed by a model with some fieds of (A, C, Q, R, mu0, Q0), 
+%           do not learn, use the provided parameters 
 %  covariance options:
 %   'DiagQ0', if presented, will learn a diagonal covariance Q0
 %   'DiagQ', if presented, will learn a diagonal covariance Q
@@ -50,8 +52,10 @@ function [model, LL] = learn_lds(X, varargin)
 % X = [x1; x2];
 % model = learn_lds(X, 'Hidden', 2, 'MaxIter', 100);
 %
-% derived from old function 
-% function [A, Gamma, C, Sigma, u0, V0, LL] = learn_kalman(x, H, maxIter)
+% $Author$@cs.berkeley.edu
+% $Date$
+% $Rev$
+%
 
 N = size(X, 2);
 M = size(X, 1);
