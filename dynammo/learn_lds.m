@@ -89,6 +89,40 @@ else
   model = varargin{a+1};
 end
 
+% if there is fixed parameter for part of the model
+a = find(strcmp('Fixed', varargin), 1);
+if (~isempty(a))
+  modelinit = varargin{a+1};
+  if (isfield(modelinit, 'A'))
+    model.A = modelinit.A;
+  end
+  if (isfield(modelinit, 'C'))
+    model.C = modelinit.C;
+  end
+  if (isfield(modelinit, 'Q'))
+    model.Q = modelinit.Q;
+  end
+  if (isfield(modelinit, 'R'))
+    model.R = modelinit.R;
+  end
+  if (isfield(modelinit, 'mu0'))
+    model.mu0 = modelinit.mu0;
+  end
+  if (isfield(modelinit, 'Q0'))
+    model.Q0 = modelinit.Q0;
+  end
+end
+
+% plot eigen value trajectory of A
+a = find(strcmp('ShowEigen', varargin), 1);
+if (isempty(a))
+  SHOWEIGEN = false;
+else
+  SHOWEIGEN = true;
+  plotEigen(model.A, '.');
+  hold on;
+end
+
 LOGLI = true;
 if (nargout < 2)
   LOGLI = false;
@@ -101,6 +135,7 @@ diff = 1;
 iter = 0;
 oldLogli = -inf;
 
+oldmodel = model;
 while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTiny(model.Q0) || isTiny(model.Q) || isTiny(model.R))))
   oldmodel = model;
   iter = iter + 1;
@@ -124,8 +159,17 @@ while ((ratio > CONV_BOUND || diff > CONV_BOUND) && (iter < maxIter) && (~ (isTi
   else
     fprintf('iteration = %d\n', iter);
   end
+  if (SHOWEIGEN)
+    plotEigen(model.A, '.');
+    drawnow;
+  end
 end
 model = oldmodel;
+
+if (SHOWEIGEN)
+  plotEigen(model.A, 'kx');
+  drawnow;
+end
 
 function [t] = isTiny(sigma)
 % test whether the matrix sigma is close to zero
