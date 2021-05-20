@@ -6,6 +6,8 @@ Linear dynamical systems (aka Kalman filters)
 It provides matlab packages to learn parameters for linear dynamical systems (kalman filters), and variants under various contraints and missing values. 
 It contains the following package:
 
+DynaMMo: Mining, Compression, and Missing Value Imputation
+---
 1. dynammo
   Expectation-Maximization algorithm to learn the parameters of a linear dynamical system, with or without missing values.  
   There also also additional code for learning with missing observations, recovering the missing values, and compressing data.
@@ -19,7 +21,9 @@ It contains the following package:
   ```
   
   The original paper is [here](https://dl.acm.org/doi/10.1145/1557019.1557078). 
-  
+
+PLiF: Feature extraction and clustering
+---
 2. PLiF
   A package for extracting shift-invariant and harmonics features from time series. These features are useful for clustering and classification. 
   
@@ -30,6 +34,8 @@ It contains the following package:
   ```
   The original paper is [here](https://dl.acm.org/doi/10.14778/1920841.1920893).
   
+BoLeRO: Missing value prediction for motion capture data, guided by human body knowledge
+---
 3. Bolero
   A package for missing value imputation for human motion capture sequence, utilizing the human body skeleton. The decoding is essentially dynammo method plus the additional bone length constraints. 
   
@@ -40,9 +46,10 @@ It contains the following package:
   ```
   The original paper is [here](https://dl.acm.org/doi/10.5555/1921427.1921454).
   
-  
+Complex-valued Linear Dynamical System
+--- 
 4. CLDS
-  A package for learning complex-valued dynamical systems. This is an extension to traditional real-valued Kalman filter. It includes discrete Fourier transform as a special case. The original paper is [here](https://icml.cc/Conferences/2011/papers/159_icmlpaper.pdf).
+  A package for learning complex-valued dynamical systems. This is a generalization to traditional real-valued Kalman filter. It includes discrete Fourier transform as a special case. The original paper is [here](https://icml.cc/Conferences/2011/papers/159_icmlpaper.pdf).
   
   ```
     Time Series Clustering: Complex is Simpler!,
