@@ -8,7 +8,7 @@ It contains the following package:
 
 DynaMMo: Mining, Compression, and Missing Value Imputation
 ---
-1. dynammo
+
   Expectation-Maximization algorithm to learn the parameters of a linear dynamical system, with or without missing values.  
   There also also additional code for learning with missing observations, recovering the missing values, and compressing data.
   located in the dynammo subdirectory
@@ -24,7 +24,7 @@ DynaMMo: Mining, Compression, and Missing Value Imputation
 
 PLiF: Feature extraction and clustering
 ---
-2. PLiF
+
   A package for extracting shift-invariant and harmonics features from time series. These features are useful for clustering and classification. 
   
   ```
@@ -36,7 +36,7 @@ PLiF: Feature extraction and clustering
   
 BoLeRO: Missing value prediction for motion capture data, guided by human body knowledge
 ---
-3. Bolero
+
   A package for missing value imputation for human motion capture sequence, utilizing the human body skeleton. The decoding is essentially dynammo method plus the additional bone length constraints. 
   
   ```
@@ -48,11 +48,13 @@ BoLeRO: Missing value prediction for motion capture data, guided by human body k
   
 Complex-valued Linear Dynamical System
 --- 
-4. CLDS
-  A package for learning complex-valued dynamical systems. This is a generalization to traditional real-valued Kalman filter. It includes discrete Fourier transform as a special case. The original paper is [here](https://icml.cc/Conferences/2011/papers/159_icmlpaper.pdf).
+
+  A package for learning complex-valued dynamical systems. This is a generalization to traditional real-valued Kalman filter. It includes discrete Fourier transform as a special case. 
   
   ```
     Time Series Clustering: Complex is Simpler!,
     Lei Li and B. Aditya Prakash.
     In Proceedings of the 28th International Conference on Machine Learning (ICML) , 2011.
   ```
+  
+The original paper is [here](https://icml.cc/Conferences/2011/papers/159_icmlpaper.pdf).
